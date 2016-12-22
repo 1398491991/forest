@@ -1,1 +1,1 @@
-#基于celery(异步式)&redis(分布式)的爬虫框架
+#基于celery&redis的爬虫框架
