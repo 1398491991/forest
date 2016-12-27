@@ -10,8 +10,8 @@ class ManagerMiddleware(object):
     def from_crawler(cls, crawler):
         return cls.from_settings(crawler.settings, crawler)
 
-
-    def from_settings(self):
+    @classmethod
+    def from_settings(cls,settings):
         pass
 
 
@@ -21,7 +21,7 @@ class ManagerMiddleware(object):
         :param request: 请求实例
         :return:响应实例或者请求实例（抓取失败）
         """
-        pass # 返回请求或者响应
+        return request# 返回请求或者响应
 
 from collections import defaultdict
 import logging

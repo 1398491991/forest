@@ -1,41 +1,30 @@
 #coding=utf-8
 #调度器
+
+# import sys
+# import os
+
 from forest.settings import default_settings
-from forest.utils.to_map import setting_to_map,Map
-from forest.import_api import Request
+from forest.utils.conver import setting_conver,Setting
 from forest.import_api import ManagerMiddleware
-#### example
-import sys
-sys.path.append('f:/forest/example/')
-import settings
-####
+import settings # project setting 需要如添加到sys.path
 from celery import Celery
 
-celery = Celery('tasks',backend='redis://10.0.0.12:6379/0', broker='redis://10.0.0.12:6379/0')
-
-default_settings_map=Map(setting_to_map(default_settings))
-settings_map=Map(setting_to_map(settings))
-settings_map.update(default_settings_map) # 合并配置文件
-manager_middleware=ManagerMiddleware(settings) # 实例化中间件管理器
-# from example.demo import test
-# t=test()
-import requests
-# import redis
-# rq=redis.Redis('10.0.0.12')
-print sys.path
+# 配置该项目设置
+project_settings=setting_conver(settings)
+project_settings.update(setting_conver(default_settings)) # 合并配置文件
+project_settings=Setting(project_settings)
 
 
-@celery.task
+scheduler_app = Celery(**project_settings.get('scheduler_settings',{'name':__name__}))
+# celery = Celery('tasks',backend='redis://10.0.0.12:6379/0', broker='redis://10.0.0.12:6379/0')
+manager_middleware=ManagerMiddleware.from_settings(project_settings) # 实例化中间件管理器
+
+
+
+@scheduler_app.task
 def process_request(request,**kwargs):
     # assert isinstance(request,dict)
-    # request=Request(**request)
-    # todo : do something...
-    print request
-    # import pickle
-    # return request
-    # return requests.get(request['url'])
-    # print rq.get('test')
-    res=requests.get(request['url'])
-    # t=getattr(request['self'](),request['callback'])
-    return getattr(request['self'],request['callback'])(res)
-    # return manager_middleware.process(request)
+    request_or_response=manager_middleware.process(request) # 返回对象
+    # response=requests.request(**request) # 这里还要详细些
+    return getattr(request['self'],request.get('callback','parse'))(request_or_response)
