@@ -1,3 +1,5 @@
 #coding=utf-8
 
-test=[]
+middleware={
+    'forest.middleware.defaultheaders.DefaultHeadersMiddleware':10,
+}

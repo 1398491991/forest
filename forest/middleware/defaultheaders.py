@@ -1,9 +1,14 @@
 #coding=utf-8
 
 class DefaultHeadersMiddleware(object):
+    def __init__(self,settings):
+        self.settings=settings
 
-    @staticmethod
-    def process_request(request):
-        if not getattr(request,'headers'):
-            request.headers={'user-agent':'forest'}
+    def process_request(self,request):
+        # assert isinstance(request,dict)
+        request.setdefault('headers',{'user-agent':'forest'})
         return request
+
+    @classmethod
+    def from_settings(cls,settings):
+        return cls(settings)
