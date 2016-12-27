@@ -7,6 +7,9 @@
 from forest.settings import default_settings
 from forest.utils.conver import setting_conver,Setting
 from forest.import_api import ManagerMiddleware
+import sys
+sys.path.append('f:/forest/example/')
+sys.path.append('f:/forest/forest/')
 import settings # project setting 需要如添加到sys.path
 from celery import Celery
 

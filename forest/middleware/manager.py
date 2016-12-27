@@ -1,18 +1,20 @@
 #coding=utf8
 # 中间件经理
-
+from scrapy.utils.misc import load_object
 class ManagerMiddleware(object):
 
-    def __init__(self,*middlewares):
+    def __init__(self,middlewares):
         self.middlewares=middlewares
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls.from_settings(crawler.settings, crawler)
 
     @classmethod
     def from_settings(cls,settings):
-        pass
+        middleware=settings['middleware']
+        middleware_rank=sorted(middleware,cmp=lambda x,y:cmp(middleware[x],middleware[y])) # 按照顺序升序排序
+        mw=[]
+        for clspath in middleware_rank:
+            mw.append(load_object(clspath).from_settings(settings))
+        return cls(mw)
 
 
     def process(self,request):
@@ -21,7 +23,10 @@ class ManagerMiddleware(object):
         :param request: 请求实例
         :return:响应实例或者请求实例（抓取失败）
         """
-        return request# 返回请求或者响应
+        for mw in self.middlewares:
+            request=mw.process_request(request)# 返回请求或者响应
+        return request
+
 
 from collections import defaultdict
 import logging
