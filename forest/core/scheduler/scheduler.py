@@ -31,11 +31,11 @@ def process_request(request,**kwargs):
     # request=Request(**request)
     # todo : do something...
     print request
-    import pickle
+    # import pickle
     # return request
     # return requests.get(request['url'])
     # print rq.get('test')
-    res=requests.get('http://10.0.0.12:8000/admin/login/?next=/admin/')
-    t=getattr(request['self'](),request['callback'])
-    return t(res)
+    res=requests.get(request['url'])
+    # t=getattr(request['self'](),request['callback'])
+    return getattr(request['self'],request['callback'])(res)
     # return manager_middleware.process(request)
