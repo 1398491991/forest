@@ -17,5 +17,5 @@ def async_request(func):
         #     pass
         # else:
             for rq in rq_list:
-                process_request.delay(rq)
+                process_request.delay(rq.to_dict())
     return decorator

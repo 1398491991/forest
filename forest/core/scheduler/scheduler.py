@@ -23,10 +23,10 @@ scheduler_app = Celery(**project_settings.get('scheduler_settings',{'name':__nam
 manager_middleware=ManagerMiddleware.from_settings(project_settings) # 实例化中间件管理器
 
 
-
 @scheduler_app.task
 def process_request(request,**kwargs):
     # assert isinstance(request,dict)
+
     request_or_response=manager_middleware.process(request) # 返回对象
     # response=requests.request(**request) # 这里还要详细些
     return getattr(request['self'],request.get('callback','parse'))(request_or_response)
