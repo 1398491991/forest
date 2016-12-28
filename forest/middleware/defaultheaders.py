@@ -6,7 +6,10 @@ class DefaultHeadersMiddleware(object):
 
     def process_request(self,request):
         # assert isinstance(request,dict)
-        request.setdefault('headers',{'user-agent':'forest'})
+        request.setdefault('headers',self.settings.get('default_headers',
+                                                       {'user-agent':'forest'}
+                                                       )
+                           )
         return request
 
     @classmethod

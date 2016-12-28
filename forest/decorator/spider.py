@@ -5,12 +5,14 @@
 from forest.core.scheduler import process_request
 from functools import wraps
 
-def delay(func):
-    """爬虫回调请求的装饰器"""
+def async_request(func):
+    """
+    爬虫异步回调请求的装饰器
+    """
     @wraps(func)
-    def decorator(*args,**kwargs):
+    def decorator(request_or_response):
         # try:
-            rq_list=func(*args,**kwargs)
+            rq_list=func(request_or_response)
         # except:
         #     pass
         # else:
