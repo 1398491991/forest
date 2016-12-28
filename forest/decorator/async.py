@@ -4,6 +4,8 @@
 """
 from forest.core.scheduler import process_request
 from functools import wraps
+from forest.http import RequestBase
+from forest.http import ResponseBase
 
 def async_request(func):
     """
@@ -11,11 +13,11 @@ def async_request(func):
     """
     @wraps(func)
     def decorator(request_or_response):
-        # try:
+        if isinstance(request_or_response,RequestBase):
+            # todo  重新请求
+            pass
+        else: # response
             rq_list=func(request_or_response)
-        # except:
-        #     pass
-        # else:
             for rq in rq_list:
                 process_request.delay(rq.to_dict())
     return decorator

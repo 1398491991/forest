@@ -3,7 +3,10 @@ from requests import Response as rq_Response
 # from scrapy import http
 from six.moves.urllib.parse import urljoin
 
-class Response(rq_Response):
+class ResponseBase(rq_Response):
+    pass
+
+class Response(ResponseBase):
 
     def decode(self,encode):
         return self.content.decode(encode)

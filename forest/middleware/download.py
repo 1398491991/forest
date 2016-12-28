@@ -12,8 +12,11 @@ class DownLoadMiddleware(object):
 
     def process_request(self,request):
         assert isinstance(request,dict)
-        response=requests.request(**{k:request.pop(k) for k in rq_params})
-        return request
+        try:
+            response=requests.request(**{k:request.pop(k) for k in rq_params})
+            return response
+        except:
+            return request
 
     @classmethod
     def from_settings(cls,settings):
