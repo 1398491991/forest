@@ -6,7 +6,7 @@ from requests import Request as rq_Request
 
 class RequestBase(rq_Request):
     """ 参考第三方模块 requests 参数没变"""
-    def __init__(self,url, method,
+    def __init__(self,url, method,spider,
         params=None,
         data=None,
         headers=None,
@@ -24,6 +24,7 @@ class RequestBase(rq_Request):
 
         super(RequestBase,self).__init__(method, url, headers, files,
         data, params, auth, cookies, hooks, json)
+        self.spider=spider
         self.timeout=timeout
         self.allow_redirects=allow_redirects
         self.proxies=proxies
@@ -41,7 +42,10 @@ class RequestBase(rq_Request):
                                             'allow_redirects','proxies','hooks',
                                             'stream','verify','cert','json']}
 
-
+    def __getitem__(self, item):
+        if isinstance(item,basestring):
+            return getattr(self,item)
+        return map(lambda x:getattr(self,x),item)
 
     def __str__(self):
         return "<%s %s>" % (self.method, self.url)
@@ -74,6 +78,7 @@ class FormRequest(Request):
         if 'method' not in kwargs:
             kwargs['method']='POST'
         super(FormRequest,self).__init__(url,**kwargs)
+        assert self.method=='POST'
 
 
 

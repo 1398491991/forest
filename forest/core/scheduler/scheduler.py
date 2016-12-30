@@ -22,11 +22,14 @@ scheduler_app = Celery(**project_settings.get('scheduler_settings',{'name':__nam
 # celery = Celery('tasks',backend='redis://10.0.0.12:6379/0', broker='redis://10.0.0.12:6379/0')
 manager_middleware=ManagerMiddleware.from_settings(project_settings) # 实例化中间件管理器
 
+from forest.http import Request,FormRequest
 
 @scheduler_app.task
 def process_request(request,**kwargs):
-    # assert isinstance(request,dict)
+    assert isinstance(request,dict)
 
+    request=Request(**request) if request['method'].upper=='GET' else FormRequest(**request)
     request_or_response=manager_middleware.process(request) # 返回对象
+    print request_or_response,'##############'
     # response=requests.request(**request) # 这里还要详细些
-    return getattr(request['self'],request.get('callback','parse'))(request_or_response)
+    return getattr(request.spider,request.callback)(request_or_response)

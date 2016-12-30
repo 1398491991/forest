@@ -4,6 +4,7 @@ rq_params=['method','url','params','data',
             'headers','cookies','files','auth','timeout',
             'allow_redirects','proxies','hooks',
             'stream','verify','cert','json']
+
 class DownLoadMiddleware(object):
 
     """下载中间件  直接使用 requests 模块"""
