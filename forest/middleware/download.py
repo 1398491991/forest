@@ -1,9 +1,6 @@
 #coding=utf-8
 import requests
-rq_params=['method','url','params','data',
-            'headers','cookies','files','auth','timeout',
-            'allow_redirects','proxies','hooks',
-            'stream','verify','cert','json']
+
 
 class DownLoadMiddleware(object):
 
@@ -12,12 +9,16 @@ class DownLoadMiddleware(object):
         self.settings=settings
 
     def process_request(self,request):
-        assert isinstance(request,dict)
+
+        return self.__curl(request)
+
+    def __curl(self,request):
         try:
-            response=requests.request(**{k:request.pop(k) for k in rq_params})
-            return response
+            response=requests.request(**{x:getattr(request,x) for x in request.base_attrs})
         except:
             return request
+        else:
+            return response
 
     @classmethod
     def from_settings(cls,settings):

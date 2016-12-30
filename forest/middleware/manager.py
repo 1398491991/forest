@@ -23,8 +23,8 @@ class ManagerMiddleware(object):
         :param request: 请求实例
         :return:响应实例或者请求实例（抓取失败）
         """
-        # for mw in self.middlewares:
-        #     request=mw.process_request(request)# 返回请求或者响应
+        for mw in self.middlewares:
+            request=mw.process_request(request)# 返回请求或者响应
         return request
 
 

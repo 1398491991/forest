@@ -2,11 +2,18 @@
 # from scrapy import Request
 
 import json
+import requests
 from requests import Request as rq_Request
 
 class RequestBase(rq_Request):
     """ 参考第三方模块 requests 参数没变"""
-    def __init__(self,url, method,spider,
+    base_attrs=['method','url','params','data',
+        'headers','cookies','files','auth','timeout',
+        'allow_redirects','proxies','hooks',
+        'stream','verify','cert','json']
+    attrs=base_attrs
+
+    def __init__(self,url, method,spider=None,
         params=None,
         data=None,
         headers=None,
@@ -37,10 +44,17 @@ class RequestBase(rq_Request):
         return json.dumps(self.to_dict())
 
     def to_dict(self):
-        return {k:getattr(self,k) for k in ['method','url','params','data',
-                                            'headers','cookies','files','auth','timeout',
-                                            'allow_redirects','proxies','hooks',
-                                            'stream','verify','cert','json']}
+        return {k:getattr(self,k) for k in self.attrs}
+
+
+    def safe_attr(self,attr,attr_type):
+
+        if self.exist_attr(attr):
+            return isinstance(getattr(self,attr),attr_type)
+        return False
+
+    def exist_attr(self,attr):
+        return hasattr(self,attr)
 
     def __getitem__(self, item):
         if isinstance(item,basestring):
@@ -55,6 +69,9 @@ class RequestBase(rq_Request):
 
 class Request(RequestBase):
     """添加优先级等参数，参考scrapy request 定义"""
+    attr = RequestBase.attrs+['callback','priority','encoding',
+                                              'errorback','meta']
+
     def __init__(self,url,**kwargs):
         self.callback=kwargs.pop('callback','parse')
         self.priority=kwargs.pop('priority',0)
@@ -65,12 +82,6 @@ class Request(RequestBase):
         assert isinstance(self.meta,dict)
         super(Request,self).__init__(url,kwargs.pop('method','GET'),**kwargs)
 
-
-    def to_dict(self):
-        d=super(Request,self).to_dict()
-        d.update({k:getattr(self,k) for k in ['callback','priority','encoding',
-                                              'errorback','meta']})
-        return d
 
 
 class FormRequest(Request):
@@ -83,7 +94,7 @@ class FormRequest(Request):
 
 
 if __name__ == '__main__':
-    a=FormRequest(2222)
+    a=Request(2222,callback='run2',spider=123)
     print a
     print a.to_dict()['method']
     print a.to_json()

@@ -26,10 +26,8 @@ from forest.http import Request,FormRequest
 
 @scheduler_app.task
 def process_request(request,**kwargs):
-    assert isinstance(request,dict)
-
-    request=Request(**request) if request['method'].upper=='GET' else FormRequest(**request)
+    # print request
+    # request=Request(**request) if request['method'].upper=='GET' else FormRequest(**request)
     request_or_response=manager_middleware.process(request) # 返回对象
-    print request_or_response,'##############'
     # response=requests.request(**request) # 这里还要详细些
     return getattr(request.spider,request.callback)(request_or_response)

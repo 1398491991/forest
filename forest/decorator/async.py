@@ -13,23 +13,12 @@ def async_request(func):
     爬虫异步回调请求的装饰器
     """
     @wraps(func)
-    def decorator(self,a):#*args,**kwargs):
-        # print type(request_or_response)
-        # print args
-        # print kwargs
-        print a
-        request_or_response=a
+    def decorator(self):#*args,**kwargs):
         # self,request_or_response=args
-        if isinstance(request_or_response,RequestBase):
-            # todo  重新请求 待明确
-            d=request_or_response.to_dict()
-            return d
-        elif isinstance(request_or_response,ResponseBase)\
-                or not request_or_response: # response
-            rq_list=func(request_or_response)
+            print self
+            rq_list=func(self)
             for rq in rq_list:
-                process_request.delay(rq.to_dict())
-        else:
-            raise HttpTypeException
-
+                if not rq.spider:
+                    rq.spider=self
+                process_request.delay(rq)
     return decorator
