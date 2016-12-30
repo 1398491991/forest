@@ -1,3 +1,5 @@
+#coding=utf8
+
 """Helper functions which doesn't fit anywhere else"""
 import re
 import hashlib
@@ -49,6 +51,21 @@ def load_object(path):
         raise NameError("Module '%s' doesn't define any object named '%s'" % (module, name))
 
     return obj
+
+
+
+def load_project_setting():
+    from forest.settings import default_settings
+    from forest.utils.conver import setting_conver,Setting
+    import sys
+    sys.path.append('f:/forest/example/')
+    import settings # project setting 需要如添加到sys.path
+
+    # 配置该项目设置
+    project_settings=setting_conver(settings)
+    project_settings.update(setting_conver(default_settings)) # 合并配置文件
+    project_settings=Setting(project_settings)
+    return project_settings
 
 
 def walk_modules(path):
