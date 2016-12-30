@@ -13,8 +13,8 @@ import settings # project setting 需要如添加到sys.path
 from celery import Celery
 
 # 配置该项目设置
-project_settings=setting_conver(settings)
-project_settings.update(setting_conver(default_settings)) # 合并配置文件
+project_settings=setting_conver(default_settings)
+project_settings.update(setting_conver(settings)) # 合并配置文件
 project_settings=Setting(project_settings)
 
 
