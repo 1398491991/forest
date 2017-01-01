@@ -6,6 +6,7 @@ class Spider(object):
     """借鉴 scrapy """
 
     name=None
+    config={}
     custom_settings = {}
 
     custom_middleware={} # 设置一些爬虫私有的的中间件加载路径 优先使用 防止 celery 重启
@@ -19,6 +20,12 @@ class Spider(object):
         self.__dict__.update(kwargs)
         if not hasattr(self, 'start_urls'):
             self.start_urls = []
+
+    def load_config(self,path):
+        """加载配置文件"""
+        config=None
+        self.config.update(config)
+
 
     def start(self):
         """爬虫的启动方法"""
@@ -41,4 +48,7 @@ class Spider(object):
 
         self.mw_list=[]
 
+if __name__ == '__main__':
+    s=Spider(1)
+    print s.__dict__
 
