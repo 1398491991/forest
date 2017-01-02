@@ -5,7 +5,9 @@ class LoadSpiderMiddleware(object):
     """通过爬虫配置文件加载此爬虫相对应的中间件"""
     def __init__(self,spider_config):
         self.spider_config=spider_config
-        self.cfg=self.spider_config.get('middleware',{}) # 获取配置中间件的字典
+        self.cfg=self.spider_config['middleware'] # 获取配置中间件的字典
+        assert self.cfg #不能为空
+
 
     def __sort_cfg(self,desc=False):
         rank_key=sorted(self.cfg,cmp=lambda x,y:cmp(self.cfg[x],self.cfg[y]),reverse=desc)
