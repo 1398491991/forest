@@ -14,6 +14,6 @@ class LoadSpiderMiddleware(object):
         return rank_key
 
     def load_mws(self,desc=False):
-        # 返回排序的中间件的实例
+        # 返回排序的中间件的实例对象
         return [load_object(self.cfg[key])(self.spider_config) for key in self.__sort_cfg(desc)]
 

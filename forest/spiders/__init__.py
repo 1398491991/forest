@@ -10,28 +10,21 @@ from forest.utils.load_mws import LoadSpiderMiddleware
 class Spider(object):
     """借鉴 scrapy """
 
-    def __init__(self,config,
-                 default_config_path=None):
-        self.config=Dict(config)
-        self.merge_config(self.load_default_config(default_config_path)) # 更新默认配置文件
+    def __init__(self,config,default_config):
+        self.config=Dict(default_config)
+        self.config.update(Dict(config)) # 合并配置
+
 
     @classmethod
-    def config_from_py(cls,path):
+    def config_from_py(cls,config_path,default_config_path=None):
         """通过配置文件加载"""
-        cfg=obj_to_dict(load_object(path))
-        return cls(cfg)
+        config,default_config=map(lambda x:obj_to_dict(load_object(x)),[config_path,
+                                                                        default_config_path or 'forest.settings.default_settings'])
+        return cls(config,default_config)
 
-
-    def load_default_config(self,path=None):
-        default_config=load_object(path or 'forest.settings.default_settings')
-        return default_config
-
-    def merge_config(self,default_config):
-        """合并配置"""
-        self.config.update(default_config)
 
     def load_down_mws(self,desc=False):
-        """加载下载中间件"""
+        """加载下载中间件实例列表 是否降序排序"""
         self.mws=LoadSpiderMiddleware(self.config).load_mws(desc)
 
     def start(self):
@@ -44,6 +37,6 @@ class Spider(object):
 
 
 if __name__ == '__main__':
-    s=Spider(1)
+    s=Spider({},{})
     print s.__dict__
 
