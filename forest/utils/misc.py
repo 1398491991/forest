@@ -59,19 +59,6 @@ def obj_to_dict(obj,filter_startswith='__'):
     return {k:obj_dict[k] for k in filter(lambda x:not x.startswith(filter_startswith),obj_dict)}
 
 
-def load_project_setting():
-    from forest.settings import default_settings
-    from forest.utils.conver import setting_conver,Setting
-    import sys
-    sys.path.append('f:/forest/example/')
-    import settings # project setting 需要如添加到sys.path
-
-    # 配置该项目设置
-    project_settings=setting_conver(settings)
-    project_settings.update(setting_conver(default_settings)) # 合并配置文件
-    project_settings=Setting(project_settings)
-    return project_settings
-
 
 def walk_modules(path):
     """Loads a module and all its submodules from the given module path and

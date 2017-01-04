@@ -23,13 +23,13 @@ class Spider(object):
         return cls(default_config)
 
 
-    def load_down_mws(self,desc=False):
+    def load_down_mws(self):
         """加载下载中间件实例列表 是否降序排序"""
-        self.mws=LoadSpiderMiddleware(self.config).load_mws(desc)
+        self.mws=LoadSpiderMiddleware(self.config).load_mws()
 
     def start(self):
         """爬虫的启动方法"""
-        self.load_down_mws()
+        self.load_down_mws() # 加载中间件
 
     def parse(self,response):
         """默认回调调用的方法"""
