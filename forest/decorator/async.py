@@ -4,35 +4,30 @@
 """
 from forest.scheduler import scheduler
 from functools import wraps
-from forest.http import RequestBase
-from forest.http import ResponseBase
-from forest.utils.exceptions import HttpTypeException
+from forest.utils.async import is_request,is_response
+from forest.utils.async import request_actions,response_actions
+from forest.utils.exceptions import CallbackTypeException
 
 def async(func):
 
     @wraps(func)
-    def decorator(self,*args,**kwargs):
-        print self,args,kwargs,'###############'
-        res=func(self,*args,**kwargs)
-        for r in res:
-            if not r.spider:
-                r.spider=self
-            scheduler.process_request.delay(r)
+    def decorator(self,response_or_request,*args,**kwargs): # self == spider
+        if is_request(response_or_request):
+            # 回调类型是请求
+            return request_actions(self,response_or_request)
+
+        if is_response(response_or_request):
+            # 回调类型是响应
+            return response_actions(self,response_or_request)
+
+        raise CallbackTypeException(u'回调类型必须是Response或者Request')
     return decorator
 
 
+def checkout_request(request,self):
+    """"""
+    if not request.spider:
+        request.spider=self
+    return request
 
-# def async_request(func):
-#     """
-#     爬虫异步回调请求的装饰器
-#     """
-#     @wraps(func)
-#     def decorator(self):#*args,**kwargs):
-#         # self,request_or_response=args
-#             print self
-#             rq_list=func(self)
-#             for rq in rq_list:
-#                 if not rq.spider:
-#                     rq.spider=self
-#                 process_request.delay(rq)
-#     return decorator
+# def filter
