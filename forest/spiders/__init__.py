@@ -9,18 +9,18 @@ from forest.utils.load_mws import LoadSpiderMiddleware
 
 class Spider(object):
     """借鉴 scrapy """
+    name=''
 
-    def __init__(self,config,default_config):
-        self.config=Dict(default_config)
-        self.config.update(Dict(config)) # 合并配置
-
+    def __init__(self,config):
+        self.config=Dict(config)
 
     @classmethod
     def config_from_py(cls,config_path,default_config_path=None):
         """通过配置文件加载"""
-        config,default_config=map(lambda x:obj_to_dict(load_object(x)),[config_path,
-                                                                        default_config_path or 'forest.settings.default_settings'])
-        return cls(config,default_config)
+        default_config=obj_to_dict(load_object(default_config_path or 'forest.settings.default_settings'))
+        config=obj_to_dict(load_object(config_path)) if config_path else {}
+        default_config.update(config) # 合并配置
+        return cls(default_config)
 
 
     def load_down_mws(self,desc=False):
@@ -29,7 +29,7 @@ class Spider(object):
 
     def start(self):
         """爬虫的启动方法"""
-        pass
+        self.load_down_mws()
 
     def parse(self,response):
         """默认回调调用的方法"""
@@ -37,6 +37,6 @@ class Spider(object):
 
 
 if __name__ == '__main__':
-    s=Spider({},{})
+    s=Spider({})
     print s.__dict__
 

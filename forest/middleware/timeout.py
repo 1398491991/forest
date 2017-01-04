@@ -7,7 +7,7 @@ class DownLoadTimeOutMiddleware(object):
         self.settings=settings
 
     def process_request(self,request):
-        pass
+        return request
 
     @classmethod
     def from_settings(cls,settings):

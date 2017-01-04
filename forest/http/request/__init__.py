@@ -73,6 +73,7 @@ class Request(RequestBase):
                                               'errorback','meta']
 
     def __init__(self,url,**kwargs):
+        self.spider=kwargs.pop('spider',None)
         self.callback=kwargs.pop('callback','parse')
         self.priority=kwargs.pop('priority',0)
         self.encoding=kwargs.pop('encoding','utf-8')

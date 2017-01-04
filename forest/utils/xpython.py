@@ -2,6 +2,7 @@
 
 
 class Dict(dict):
+    pass
     """python 基础对象的改写加强"""
-    def __getattr__(self, item):
-        return self[item]
+    # def __getattr__(self, item):
+    #     return self[item]

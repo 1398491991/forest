@@ -2,7 +2,7 @@
 """
 爬虫的装饰器
 """
-from forest.import_api import scheduler
+from forest.scheduler import scheduler
 from functools import wraps
 from forest.http import RequestBase
 from forest.http import ResponseBase
@@ -17,7 +17,7 @@ def async(func):
         for r in res:
             if not r.spider:
                 r.spider=self
-            scheduler.process_request(r)
+            scheduler.process_request.delay(r)
     return decorator
 
 

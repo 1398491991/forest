@@ -1,8 +1,8 @@
 from demo import Demo
 
-d=Demo()
+d=Demo.config_from_py(None)
+d.start()
 d.run1()
-
 #
 # from scrapy import Request
 # class a(object):
