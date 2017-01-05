@@ -6,16 +6,37 @@ from forest.decorator.misc import update_sys_path
 # sys.path.append('f:/forest/forest/')
 # print sys.path
 # assert 'f:/forest/example/' not in sys.path
+import kombu
+import pickle
+from kombu.serialization import BytesIO, register
+
+
+# def loads(s):
+#     print '????????????????????'
+#     if 'd:/forest/example/' not in sys.path:
+#         print '\n*****************************\n'
+#         sys.path.append('d:/forest/example/')
+#     return pickle.load(BytesIO(s))
+#
+# register('pickle', pickle.dumps, loads,
+#         content_type='application/x-pickle2',
+#         content_encoding='binary')
+
+
 from celery import Celery
 # scheduler_app = Celery(**project_settings.get('scheduler_settings',{'name':__name__}))
 from forest.xcelery import MyCelery
-scheduler_app = Celery('tasks', broker='redis://10.0.0.12:6379/0')
+import billiard
+scheduler_app = Celery('tasks', broker='redis://localhost:6379/0')
+# scheduler_app = Celery('tasks', broker='redis://10.0.0.12:6379/0')
 # scheduler_app = MyCelery('tasks', broker='redis://10.0.0.12:6379/0')
 # scheduler_app = Celery('tasks',backend='redis://10.0.0.12:6379/0', broker='redis://10.0.0.12:6379/0')
 
-
+# if 'd:/forest/example/' not in sys.path:
+#     print '\n*****************************\n'
+#     sys.path.append('d:/forest/example/')
 @scheduler_app.task()
-@update_sys_path()
+# @update_sys_path()
 def process_request(request,**kwargs):
     spider=request.spider
     callback=request.callback
