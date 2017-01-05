@@ -25,15 +25,25 @@ def error_val(default_val,ignore_exist=False):
 
 import sys
 
-def update_sys_path(func):
+def update_sys_path():
     """添加搜素路径遍历 针对 task"""
-    print func.__name__,func
-    print '@@@@@@@@@@@@@@@@@@@'
-    @wraps(func)
-    def wrapper(*args,**kwargs):
-        print '###################'
-        if 'f:/forest/example/' not in sys.path:
-            print '\n*****************************\n'
-            sys.path.append('f:/forest/example/')
-        return func(*args,**kwargs)
+
+    print sys.path
+    # print globals()
+    print 'reload !!!!!!!!!!!!!!!!!'
+    # reload(demo1)
+    def wrapper(func):
+        # if 'f:/forest/example/' not in sys.path:
+        #     print '\n*****************************\n'
+        sys.path.append('f:/')
+        print '##############################'
+        @wraps(func)
+        def _wrapper(*args,**kwargs):
+            # if 'f:/forest/example/' not in sys.path:
+            #     print '\n*****************************\n'
+            #     sys.path.append('f:/forest/example/')
+            print u'#￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥'
+            print sys.path
+            return func(*args,**kwargs)
+        return _wrapper
     return wrapper

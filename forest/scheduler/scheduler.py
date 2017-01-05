@@ -13,8 +13,9 @@ scheduler_app = Celery('tasks', broker='redis://10.0.0.12:6379/0')
 # scheduler_app = MyCelery('tasks', broker='redis://10.0.0.12:6379/0')
 # scheduler_app = Celery('tasks',backend='redis://10.0.0.12:6379/0', broker='redis://10.0.0.12:6379/0')
 
-@update_sys_path
+
 @scheduler_app.task()
+@update_sys_path()
 def process_request(request,**kwargs):
     spider=request.spider
     callback=request.callback
