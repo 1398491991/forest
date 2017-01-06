@@ -45,4 +45,4 @@ class Dict(dict):
 
 if __name__ == '__main__':
     d=Dict({'a':1,'b':2,'c':{1:2}})
-    print d,d.getdict('c')
+    print d.gettuple('a',ignore_exist=False)

@@ -43,5 +43,9 @@ def process_request(request,**kwargs):
         request=mw.process_request(request) # request 肯能是一个响应或者请求（出错的时候）
     return getattr(spider,callback)(request) # 注意： request 可能是一个响应或者请求（出错的时候）
 
-
+@scheduler_app.task()
+def process_item(item,**kwargs):
+    spider=item.spider
+    for pip in spider.pips:
+        item=pip.process_item(item) # 处理item 入库
 

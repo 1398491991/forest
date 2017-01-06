@@ -1,13 +1,13 @@
 #coding=utf-8
 from functools import wraps
 
-def error_val(default_val,ignore_exist=False):
+def error_val(default_val):
     #  针对 xpython Dict
     #　键值或者类型错误返回的值
     def wrapper(fun):
 
         @wraps(fun)
-        def _wrapper(self,key):
+        def _wrapper(self,key,ignore_exist=False):
             try:
                 result=self[key]
             except KeyError:

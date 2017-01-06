@@ -5,7 +5,7 @@
 from forest.utils.misc import load_object
 from forest.utils.misc import obj_to_dict
 from forest.utils.xpython import Dict
-from forest.utils.load_mws import LoadSpiderMiddleware
+from forest.utils.load import LoadSpiderMiddleware,LoadSpiderPipeline
 
 class Spider(object):
     """借鉴 scrapy """
@@ -25,7 +25,8 @@ class Spider(object):
 
     def load_down_mws(self):
         """加载下载中间件实例列表 是否降序排序"""
-        self.mws=LoadSpiderMiddleware(self.config).load_mws()
+        self.mws=LoadSpiderMiddleware(self.config).load()
+        self.pips=LoadSpiderPipeline(self.config).load()
 
     def start(self):
         """爬虫的启动方法"""
