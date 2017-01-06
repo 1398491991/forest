@@ -17,33 +17,24 @@ def error_val(default_val,ignore_exist=False):
                     if ignore_exist:
                         return default_val
                     else:
-                        raise ValueError(u'键值存在，获取类型错误 %s'%type(result))
+                        raise ValueError('key exists , type error %s'%type(result))
                 return result
         return _wrapper
     return wrapper
 
 
 import sys
-
-def update_sys_path():
+import os
+def update_sys_path(rd_conn):
     """添加搜素路径遍历 针对 task"""
 
-    print sys.path
-    # print globals()
-    print 'reload !!!!!!!!!!!!!!!!!'
-    # reload(demo1)
     def wrapper(func):
-        # if 'f:/forest/example/' not in sys.path:
-        #     print '\n*****************************\n'
-        sys.path.append('f:/')
-        print '##############################'
         @wraps(func)
         def _wrapper(*args,**kwargs):
-            # if 'f:/forest/example/' not in sys.path:
-            #     print '\n*****************************\n'
-            #     sys.path.append('f:/forest/example/')
-            print u'#￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥'
-            print sys.path
+            path_set=rd_conn.smembers('forest:spider:project_path')
+            for path in path_set:
+                if os.path.exists(path) and path not in sys.path:
+                    sys.path.append(path)
             return func(*args,**kwargs)
         return _wrapper
     return wrapper
