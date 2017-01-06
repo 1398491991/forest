@@ -4,3 +4,4 @@
 # import demo2
 from example import demo1
 from example import demo2
+from example import demo3

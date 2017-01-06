@@ -12,6 +12,7 @@ def async(func):
 
     @wraps(func)
     def decorator(self,obj,*args,**kwargs): # self == spider
+
         if is_response(obj):
             # 回调类型是响应
             return response_actions(func,self,obj)

@@ -17,3 +17,11 @@ class RegisterSpiderException(Exception):
         return '<%s>'%self.args
 
     __str__=__repr__
+
+
+class AsyncResultNotIterException(Exception):
+    """针对返回的异步过程 必须是可迭代的 列表等等"""
+    def __repr__(self):
+        return '<%s>'%self.args
+
+    __str__=__repr__

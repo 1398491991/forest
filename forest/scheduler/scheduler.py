@@ -34,7 +34,8 @@ scheduler_app = Celery('tasks', broker='redis://10.0.0.12:6379/0')
 
 # if 'd:/forest/example/' not in sys.path:
 #     print '\n*****************************\n'
-#     sys.path.append('d:/forest/example/')
+sys.path.append('f:/forest/example/')
+
 @scheduler_app.task()
 def process_request(request,**kwargs):
     spider=request.spider
@@ -42,6 +43,8 @@ def process_request(request,**kwargs):
     for mw in spider.mws:
         request=mw.process_request(request) # request 肯能是一个响应或者请求（出错的时候）
     return getattr(spider,callback)(request) # 注意： request 可能是一个响应或者请求（出错的时候）
+
+
 
 @scheduler_app.task()
 def process_item(item,**kwargs):
