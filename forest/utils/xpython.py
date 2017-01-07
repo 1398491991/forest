@@ -1,6 +1,6 @@
 #coding=utf-8
 
-from forest.decorator.misc import error_val
+from forest.decorator.misc import xdict_get
 
 
 class Dict(dict):
@@ -10,33 +10,33 @@ class Dict(dict):
     #     return self[key]
 
 
-    @error_val(0)
+    @xdict_get(0)
     def getint(self,key):
         pass
 
-    @error_val(0.0)
+    @xdict_get(0.0)
     def getfloat(self,key):
         pass
 
 
-    @error_val('')
+    @xdict_get('')
     def getstr(self,key):
         pass
 
-    @error_val(dict())
+    @xdict_get(dict())
     def getdict(self,key):
         pass
 
-    @error_val([])
+    @xdict_get([])
     def getlist(self,key):
         pass
 
 
-    @error_val(set())
+    @xdict_get(set())
     def getset(self,key):
         pass
 
-    @error_val(tuple())
+    @xdict_get(tuple())
     def gettuple(self,key):
         pass
 

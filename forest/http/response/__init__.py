@@ -6,7 +6,12 @@ from six.moves.urllib.parse import urljoin
 class ResponseBase(rq_Response):
     pass
 
-class Response(ResponseBase):
+
+class ResponseExt(object):
+    pass
+
+
+class Response(ResponseBase,ResponseExt):
 
     def decode(self,encode):
         return self.content.decode(encode)

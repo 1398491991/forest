@@ -6,7 +6,7 @@ class Pipeline(object):
         self.settings=settings
 
     def process_item(self,item):
-        pass
+        print 'process_item #^^^^^^^^^^^^^&&&&&&&&&&&&&&&&&&&&&'
 
     @classmethod
     def from_settings(cls,settings):

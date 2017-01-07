@@ -35,6 +35,7 @@ scheduler_app = Celery('tasks', broker='redis://10.0.0.12:6379/0')
 # if 'd:/forest/example/' not in sys.path:
 #     print '\n*****************************\n'
 sys.path.append('f:/forest/example/')
+sys.path.append('/mnt/hgfs/project/forest/example/')
 
 @scheduler_app.task()
 def process_request(request,**kwargs):

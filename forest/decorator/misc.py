@@ -1,7 +1,7 @@
 #coding=utf-8
 from functools import wraps
 
-def error_val(default_val):
+def xdict_get(default_val):
     #  针对 xpython Dict
     #　键值或者类型错误返回的值
     def wrapper(fun):

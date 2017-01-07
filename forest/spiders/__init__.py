@@ -52,11 +52,4 @@ class Spider(object):
     @async
     def parse(self,response):
         """默认回调调用的方法"""
-        print response,'##################'
-        # return 1231
-
-
-if __name__ == '__main__':
-    s=Spider({})
-    print s.__dict__
-
+        raise NotImplementedError
