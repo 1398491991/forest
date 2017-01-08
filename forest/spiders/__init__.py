@@ -10,6 +10,7 @@ from forest.db.rd import rd_conn
 from forest.decorator.async import async
 from forest.http import Request
 from forest.http import ResponseBase
+from forest.settings.final_settings import *
 
 class Spider(object):
     """借鉴 scrapy """
@@ -20,9 +21,9 @@ class Spider(object):
         assert self.name # 不能为空
 
     @classmethod
-    def config_from_py(cls,config_path,default_config_path=None):
+    def config_from_py(cls,config_path):
         """通过配置文件加载"""
-        default_config=obj_to_dict(load_object(default_config_path or 'forest.settings.default_settings'))
+        default_config=obj_to_dict(load_object(default_config_path))
         config=obj_to_dict(load_object(config_path)) if config_path else {}
         default_config.update(config) # 合并配置
         return cls(default_config)
@@ -41,7 +42,7 @@ class Spider(object):
     @async
     def make_init_request(self,response):
         """初始的请求来自于redis"""
-        urls=rd_conn.smembers('forest:spider:%s_init_urls'%self.name)
+        urls=rd_conn.smembers(init_start_urls_keys%self.name)
         if not urls:
             import warnings
             warnings.warn('spider <%s> start urls is Null'%self.name)
