@@ -5,7 +5,8 @@ class LoadSpiderMiddleware(object):
     """通过爬虫配置文件加载此爬虫相对应的中间件"""
     def __init__(self,spider_config):
         self.spider_config=spider_config
-        self.cfg=self.spider_config.getdict('middleware') # 获取配置中间件的字典
+        self.cfg=self.spider_config['middleware'] # 获取配置中间件的字典
+        self.cfg = {k:self.cfg[k] for k in filter(lambda x:self.cfg[x],self.cfg)} # 过滤 None
         assert self.cfg #不能为空
 
 
@@ -20,7 +21,7 @@ class LoadSpiderMiddleware(object):
 class LoadSpiderPipeline(object):
     def __init__(self,spider_config):
         self.spider_config=spider_config
-        self.cfg=self.spider_config.getstr('pipeline') # 获取配置中间件的字典
+        self.cfg=self.spider_config['pipeline'] # 获取配置中间件的字典
         assert self.cfg #不能为空
 
     def load(self):

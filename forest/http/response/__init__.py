@@ -1,33 +1,42 @@
 #coding=utf-8
-from requests import Response as rq_Response
-# from scrapy import http
 from six.moves.urllib.parse import urljoin
 
-class ResponseBase(rq_Response):
+class ResponseBase(object):
     pass
 
+class ResponseMixture(ResponseBase):
 
-class ResponseExt(object):
-    pass
-
-
-class Response(ResponseBase,ResponseExt):
-
-    def decode(self,encode):
-        return self.content.decode(encode)
-
-    def xpath(self,x):
-        pass
-
-    def css(self,c):
-        pass
-
-    def re(self,r):
-        pass
+    def __init__(self,response,select):
+        self.response=response
+        self.select=select
 
     def urljoin(self, url):
         """参考scrapy"""
-        return urljoin(self.url, url)
+        return urljoin(self.response.url, url)
+
+    def xpath(self,query):
+
+        return self.select.xpath(query)
+
+    def css(self,query):
+
+        return self.select.css(query)
+
+    def re(self,regex):
+
+        return self.select.re(regex)
+
+
+    def __str__(self):
+        return "<%s % s>" % (self.response.status_code, self.response.url)
+
+    __repr__ = __str__
+
+
+Response=ResponseMixture
+
+
+
 
 
 

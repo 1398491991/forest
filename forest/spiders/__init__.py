@@ -15,16 +15,22 @@ from forest.settings.final_settings import *
 class Spider(object):
     """借鉴 scrapy """
     name='forest' # example
+    start_urls=[]
+
+
 
     def __init__(self,config):
         self.config=Dict(config)
         assert self.name # 不能为空
 
+        self.start_urls_key=spider_start_urls_keys%self.name
+
     @classmethod
     def config_from_py(cls,config_path):
         """通过配置文件加载"""
-        default_config=obj_to_dict(load_object(default_config_path))
+        default_config=obj_to_dict(load_object(default_spider_settings_path))
         config=obj_to_dict(load_object(config_path)) if config_path else {}
+
         default_config.update(config) # 合并配置
         return cls(default_config)
 
@@ -42,12 +48,24 @@ class Spider(object):
     @async
     def make_init_request(self,response):
         """初始的请求来自于redis"""
-        urls=rd_conn.smembers(init_start_urls_keys%self.name)
-        if not urls:
-            import warnings
-            warnings.warn('spider <%s> start urls is Null'%self.name)
-        return map(lambda url:Request(url),urls)
+        t=rd_conn.type(self.start_urls_key)
+        f=rd_conn.rpush if t=='list' else rd_conn.sadd
+        urls=f(self.start_urls_key)
+        if urls:
+            return map(lambda url:Request(url),urls)
 
+        import warnings
+        warnings.warn('spider <%s> start urls is Null'%self.name)
+
+
+
+    def start_urls_to_redis(self,allow_same=False):
+        """将初始Url放入 redis """
+
+        f=rd_conn.rpush if allow_same else rd_conn.sadd
+        for url in self.start_urls:
+            f(self.start_urls_key,url)
+        # rd_conn.llen()
 
 
     @async

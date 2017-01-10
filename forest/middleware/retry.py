@@ -1,6 +1,4 @@
 #coding=utf-8
-from forest.http import RequestBase
-from forest.decorator.plugin import filter_type
 
 class RetryMiddleware(object):
     def __init__(self,settings):
@@ -8,11 +6,14 @@ class RetryMiddleware(object):
 
     def get_retry_max_count(self):
         """获取最大重试次数"""
-        return self.settings.getint['retry_max_count']
+        return self.settings['retry_max_count']
 
-    @filter_type(RequestBase)
+
     def process_request(self,request):
         # 是否超过最大重试次数
+        if not hasattr(request,'retry_count'):
+            request.retry_count=0
+            return request
 
         if request.retry_count>self.get_retry_max_count():
             return None

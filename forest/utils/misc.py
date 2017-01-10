@@ -60,6 +60,7 @@ def obj_to_dict(obj,filter_startswith='__'):
 
 
 
+
 def walk_modules(path):
     """Loads a module and all its submodules from the given module path and
     returns them. If *any* module throws an exception while importing, that

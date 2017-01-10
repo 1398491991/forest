@@ -5,7 +5,7 @@
 from forest.http import RequestBase
 from forest.http import ResponseBase
 from forest.scheduler import tasks
-from requests import Response # todo 暂时的
+# from requests import Response # todo 暂时的
 from forest.utils.item import ItemBase
 import warnings
 from collections import Iterable
@@ -16,7 +16,7 @@ def is_iter(obj):
     return isinstance(obj,Iterable)
 
 def is_response(obj):
-    return isinstance(obj,(ResponseBase,Response))
+    return isinstance(obj,(ResponseBase))
 
 def is_request(obj):
     return isinstance(obj,RequestBase)

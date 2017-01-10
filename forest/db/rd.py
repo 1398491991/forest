@@ -1,4 +1,5 @@
 #coding=utf-8
+
 import redis
 rd_conn=redis.Redis('10.0.0.12') #
 # class RdConn(object):
