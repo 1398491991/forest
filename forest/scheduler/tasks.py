@@ -2,6 +2,8 @@
 #调度器
 import sys
 from c import C
+from forest.http import RequestBase,ResponseBase
+
 sys.path.append('f:/forest/example/')
 sys.path.append('/mnt/hgfs/project/forest/example/')
 
@@ -11,6 +13,8 @@ def process_request(request,**kwargs):
     callback=request.callback
     for mw in spider.mws:
         request=mw.process_request(request) # request 肯能是一个响应或者请求（出错的时候）
+        if not isinstance(request,(RequestBase,ResponseBase)):
+            break
     return getattr(spider,callback)(request) # 注意： request 可能是一个响应或者请求（出错的时候）
 
 

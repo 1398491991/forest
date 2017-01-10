@@ -25,3 +25,16 @@ class AsyncResultNotIterException(Exception):
         return '<%s>'%self.args
 
     __str__=__repr__
+
+
+class DiscardException(Exception):
+    """抛弃  中间件处理"""
+    def __init__(self,obj=None,reason=None):
+        self.obj=obj
+        self.reason=reason
+
+
+    def __repr__(self):
+        return '<%s:%s>'%(self.obj,self.reason)
+
+    __str__=__repr__

@@ -7,7 +7,13 @@ from forest.http import ResponseBase
 from forest.scheduler import tasks
 from requests import Response # todo 暂时的
 from forest.utils.item import ItemBase
-from forest.utils.exceptions import AsyncResultNotIterException
+import warnings
+from collections import Iterable
+
+
+def is_iter(obj):
+    """可迭代的"""
+    return isinstance(obj,Iterable)
 
 def is_response(obj):
     return isinstance(obj,(ResponseBase,Response))
@@ -19,32 +25,58 @@ def is_request(obj):
 def is_item(obj):
     return isinstance(obj,ItemBase)
 
+class TaskRoute(object):
+    def __init__(self,func,spider,obj):
+        self.func=func
+        self.spider=spider
+        self.obj=obj
 
-def request_actions(func,spider,request):
-    """是请求对象 执行的动作"""
-    if is_request(request): # 重试过程
-        tasks.process_request.delay(request)#func(spider,request)
+    def delay_request(self,request):
 
-import warnings
+        def if_not_spider(request):
+            """没有spider object"""
+            if not request.spider:
+                request.spider=self.spider
+            return request
 
-def response_actions(func,spider,response):
-    """是响应对象 执行的动作"""
-    res=func(spider,response) # 返回处理后的下一步请求列表 爬虫的响应处理函数 xpath 等
-    if not res:
-        warnings.warn('async done')
-        return
-    try:
-        for r in res:
-            if not is_request(r): # 请求类型不是 请求 也是错误的
-                warnings.warn('async type is not request')
-                continue
-            if not r.spider: # 没有设置类实例对象
-                r.spider=spider
-            tasks.process_request.delay(r)
-    except TypeError:
-        raise AsyncResultNotIterException(res)
+        request=if_not_spider(request)
+        tasks.process_request.delay(request)
 
 
-def item_actions(func,spider,item):
-    # 处理字段
-    tasks.process_item.delay(item)
+
+    def delay_item(self,item):
+        tasks.process_item.delay(item)
+
+    def _route(self,obj):
+        if is_request(obj):
+            return self.delay_request(obj)
+        if is_item(obj):
+            return self.delay_item(obj)
+        warnings.warn('route object type unknown %s , ignore'%obj)
+
+    def _make_route(self,res):
+        """创建分发任务"""
+        if res:
+            if not is_iter(res):
+                res=[res]
+            for obj in res:
+                self._route(obj)
+
+        else:
+            warnings.warn('result is Null')
+
+    def route(self):
+        if is_response(self.obj): # 是响应
+            callback_result=self.func(self.spider,self.obj) # 回调
+        else:
+            callback_result=self.obj
+
+        return self._make_route(callback_result)
+
+
+
+
+
+
+
+
