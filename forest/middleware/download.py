@@ -1,24 +1,33 @@
 #coding=utf-8
+import requests
+from forest.http import Response
+from forest.utils.select import Selector
 
-from forest.utils.request import request_fingerprint
-# from forest.db.rd import rd_conn
+class DownLoadMiddleware(object):
 
-class DupeFilterMiddleware(object):
-
-    """过滤请求"""
+    """下载中间件  直接使用 requests 模块"""
     def __init__(self,settings):
         self.settings=settings
 
     def process_request(self,request):
-        if request.dont_filter:
+
+        return self.__curl(request)
+
+    def __curl(self,request):
+        try:
+            response=requests.request(**{x:getattr(request,x) for x in request.base_attrs})
+        except:
             return request
+        else:
+            return self.__bind(response,request)
 
-        bool=request_fingerprint(request)
-        if bool:
-            return request
-
-
-
+    def __bind(self,response,request):
+        """绑定对象到响应"""
+        response.request=request
+        if request.encoding:
+            response.encoding=request.encoding
+        select=Selector(response.text,base_url=response.url)
+        return Response(response,select)
 
     @classmethod
     def from_settings(cls,settings):

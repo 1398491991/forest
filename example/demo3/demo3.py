@@ -1,23 +1,30 @@
 #coding=utf8
-# import scrapy
-# from forest.decorator.async import async
+
 from forest.spiders import Spider
 from forest.http import Request
 from forest.decorator.async import async
-# from forest.http import Request
+import time
 
 
 class Demo(Spider):
+    start_urls = ['http://127.0.0.1:5000/1']*10
+
     @async
     def parse(self,response):
         """默认回调调用的方法"""
-        print response,'##################'
-        # return 1231
-        return [Request('http://10.0.0.12:8000/admin/login/?next=/admin/',callback='parse1')]
+        print response.url
+        print response.xpath('/')
+        res=int(response.text)+1
+        time.sleep(1)
+        return [Request('http://127.0.0.1:5000/%s'%res,callback='parse1')]
 
     @async
     def parse1(self,response):
-        return [Request('http://10.0.0.12:8000/admin/login/?next=/admin/',callback='parse')]
+        print response.url
+        print response.xpath('/')
+        time.sleep(1)
+        res=int(response.text)+1
+        return [Request('http://127.0.0.1:5000/%s'%res,callback='parse')]
 
 
 

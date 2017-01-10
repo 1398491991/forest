@@ -26,6 +26,12 @@ class ResponseMixture(ResponseBase):
 
         return self.select.re(regex)
 
+    def __getattr__(self, item):
+        try:
+            return getattr(self.response,item)
+        except AttributeError:
+            return getattr(self.select,item)
+
 
     def __str__(self):
         return "<%s % s>" % (self.response.status_code, self.response.url)

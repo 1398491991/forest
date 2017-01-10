@@ -1,1 +1,1 @@
-import default_settings
+import default_spider_settings

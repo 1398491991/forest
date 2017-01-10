@@ -49,8 +49,7 @@ class Spider(object):
     def make_init_request(self,response):
         """初始的请求来自于redis"""
         t=rd_conn.type(self.start_urls_key)
-        f=rd_conn.rpush if t=='list' else rd_conn.sadd
-        urls=f(self.start_urls_key)
+        urls=rd_conn.lrange(self.start_urls_key,0,-1) if t=='list' else rd_conn.smembers(self.start_urls_key,)
         if urls:
             return map(lambda url:Request(url),urls)
 
