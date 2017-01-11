@@ -6,8 +6,11 @@ class CallbackTypeException(Exception):
 
 class ProjectPathNotExistsException(Exception):
     """项目路径不存在错误"""
+    def __init__(self,path):
+        self.path=path
+
     def __repr__(self):
-        return '<%s>'%self.args
+        return '<%s Not Exists>'%self.path
 
     __str__=__repr__
 

@@ -7,7 +7,7 @@ import time
 
 
 class Demo(Spider):
-    start_urls = ['http://127.0.0.1:5000/1']*10
+    start_urls = ['http://10.0.0.12:5000/1']*10
 
     @async
     def parse(self,response):
@@ -16,7 +16,7 @@ class Demo(Spider):
         print response.xpath('/')
         res=int(response.text)+1
         time.sleep(1)
-        return [Request('http://127.0.0.1:5000/%s'%res,callback='parse1')]
+        return [Request('http://10.0.0.12:5000/%s'%res,callback='parse1')]
 
     @async
     def parse1(self,response):
@@ -24,7 +24,7 @@ class Demo(Spider):
         print response.xpath('/')
         time.sleep(1)
         res=int(response.text)+1
-        return [Request('http://127.0.0.1:5000/%s'%res,callback='parse')]
+        return [Request('http://10.0.0.12:5000/%s'%res,callback='parse')]
 
 
 

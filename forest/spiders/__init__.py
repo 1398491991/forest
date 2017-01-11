@@ -11,10 +11,12 @@ from forest.decorator.async import async
 from forest.http import Request
 from forest.http import ResponseBase
 from forest.settings.final_settings import *
+import os
 
 class Spider(object):
     """借鉴 scrapy """
     name='forest' # example
+    project_path=['./']
     start_urls=[]
 
 
@@ -22,7 +24,7 @@ class Spider(object):
     def __init__(self,config):
         self.config=Dict(config)
         assert self.name # 不能为空
-
+        assert isinstance(self.project_path,(list,tuple))
         self.start_urls_key=spider_start_urls_keys%self.name
 
     @classmethod
