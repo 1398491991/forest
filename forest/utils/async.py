@@ -49,11 +49,24 @@ class TaskRoute(object):
         tasks.process_item.delay(item)
 
     def _route(self,obj):
-        if is_request(obj):
+        if is_request(obj) and self.collect(obj):
             return self.delay_request(obj)
+
         if is_item(obj):
             return self.delay_item(obj)
         warnings.warn('route object type unknown %s , ignore'%obj)
+
+    def collect(self,request):
+        # 返回的 bool 是否进行下一步分发工序
+        name=self.spider.name
+        if get_spider_status(name)=='off':
+            if get_spider_collect_status(name):
+                request_collect_to_redis(name,request=request)
+            return False
+        # 爬虫关闭 检测是否同步请求
+        # 如果是请求就收集到redis
+        return True
+
 
     def _make_route(self,res):
         """创建分发任务"""
@@ -76,22 +89,22 @@ class TaskRoute(object):
 
 
 
-class CollectRequest(object):
-    def __init__(self,func,spider,obj):
-        self.func=func
-        self.spider=spider
-        self.obj=obj
-
-    def collect(self):
-        # 返回的 bool 是否进行下一步分发工序
-        name=self.spider.name
-        if get_spider_status(name)=='off' and is_request(self.obj):
-            if get_spider_collect_status(name):
-                request_collect_to_redis(name,request=self.obj)
-            return False
-        # 爬虫关闭 检测是否同步请求
-        # 如果是请求就收集到redis
-        return True
+# class CollectRequest(object):
+#     def __init__(self,func,spider,obj):
+#         self.func=func
+#         self.spider=spider
+#         self.obj=obj
+#
+#     def collect(self):
+#         # 返回的 bool 是否进行下一步分发工序
+#         name=self.spider.name
+#         if get_spider_status(name)=='off' and is_request(self.obj):
+#             if get_spider_collect_status(name):
+#                 request_collect_to_redis(name,request=self.obj)
+#             return False
+#         # 爬虫关闭 检测是否同步请求
+#         # 如果是请求就收集到redis
+#         return True
 
 
 class RestoreRequest(object):

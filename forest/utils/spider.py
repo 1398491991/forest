@@ -8,7 +8,6 @@ from forest.settings.final_settings import *
 def get_spider_status(name):
     """根据爬虫名称 返回当前设置状态"""
     res=rd_conn.get(spider_status_keys%name)
-    print res,'$$$$$$$$$$$$$$$$$$$$'
     if not res:
         # 爬虫不存在
         warnings.warn('spider <%s> not exist'%name)
