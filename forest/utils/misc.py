@@ -59,6 +59,13 @@ def obj_to_dict(obj,filter_startswith='__'):
     return {k:obj_dict[k] for k in filter(lambda x:not x.startswith(filter_startswith),obj_dict)}
 
 
+import pickle
+
+def pickle_dumps(obj,protocol=None):
+    return pickle.dumps(obj,protocol)
+
+def pickle_loads(str):
+    return pickle.loads(str)
 
 
 def walk_modules(path):

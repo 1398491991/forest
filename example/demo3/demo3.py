@@ -4,7 +4,7 @@ from forest.spiders import Spider
 from forest.http import Request
 from forest.decorator.async import async
 import time
-
+import os
 
 class Demo(Spider):
     start_urls = ['http://10.0.0.12:5000/1']*10
@@ -25,6 +25,9 @@ class Demo(Spider):
         time.sleep(1)
         res=int(response.text)+1
         return [Request('http://10.0.0.12:5000/%s'%res,callback='parse')]
+
+    def set_project_path(self):
+        self.project_path=os.path.abspath(os.path.join(os.path.dirname(__file__),os.pardir))
 
 
 

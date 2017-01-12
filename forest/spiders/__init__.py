@@ -12,19 +12,21 @@ from forest.http import Request
 from forest.http import ResponseBase
 from forest.settings.final_settings import *
 import os
+from forest.utils.spider import update_spider_status
 
 class Spider(object):
     """借鉴 scrapy """
     name='forest' # example
-    project_path=['./']
     start_urls=[]
-
-
+    project_path=''
 
     def __init__(self,config):
         self.config=Dict(config)
         assert self.name # 不能为空
-        assert isinstance(self.project_path,(list,tuple))
+        if not self.project_path: # 没有设置 那就调用方法
+            self.set_project_path()
+        assert os.path.exists(self.project_path)
+
         self.start_urls_key=spider_start_urls_keys%self.name
 
     @classmethod
@@ -45,7 +47,11 @@ class Spider(object):
     def start(self):
         """爬虫的启动方法"""
         self.load_ext() # 加载中间件和管道
+        self.update_spider_status('on')
         return self.make_init_request(ResponseBase())
+
+    def update_spider_status(self,status):
+        update_spider_status(self.name,status)
 
     @async
     def make_init_request(self,response):
@@ -68,8 +74,14 @@ class Spider(object):
             f(self.start_urls_key,url)
         # rd_conn.llen()
 
+    def set_project_path(self):
+        raise NotImplementedError
+
 
     @async
     def parse(self,response):
         """默认回调调用的方法"""
         raise NotImplementedError
+        # self.project_path=os.path.abspath(os.path.join(os.path.dirname(__file__),os.pardir))
+
+

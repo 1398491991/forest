@@ -5,10 +5,11 @@
 from forest.http import RequestBase
 from forest.http import ResponseBase
 from forest.scheduler import tasks
-# from requests import Response # todo 暂时的
 from forest.utils.item import ItemBase
 import warnings
 from collections import Iterable
+from forest.utils.spider import get_spider_collect_status,get_spider_status
+from forest.utils.request import request_collect_to_redis,request_restore_from_redis
 
 
 def is_iter(obj):
@@ -63,7 +64,7 @@ class TaskRoute(object):
                 self._route(obj)
 
         else:
-            warnings.warn('result is Null')
+            warnings.warn('route content is Null')
 
     def route(self):
         if is_response(self.obj): # 是响应
@@ -75,8 +76,44 @@ class TaskRoute(object):
 
 
 
+class CollectRequest(object):
+    def __init__(self,func,spider,obj):
+        self.func=func
+        self.spider=spider
+        self.obj=obj
+
+    def collect(self):
+        # 返回的 bool 是否进行下一步分发工序
+        name=self.spider.name
+        if get_spider_status(name)=='off' and is_request(self.obj):
+            if get_spider_collect_status(name):
+                request_collect_to_redis(name,request=self.obj)
+            return False
+        # 爬虫关闭 检测是否同步请求
+        # 如果是请求就收集到redis
+        return True
 
 
+class RestoreRequest(object):
+    """还原请求"""
+
+    def __init__(self,func,spider,obj):
+        self.func=func
+        self.spider=spider
+        self.obj=obj
+
+    def restore(self):
+        """恢复请求对象 始终返回 True 并且会分发出去"""
+        rs=request_restore_from_redis(self.spider.name)
+        for r in rs:
+            rp=self._parse(r)
+            tr=TaskRoute(*rp)
+            tr.route() # 分发
+        return True
 
 
+    def _parse(self,request):
+        return (getattr(request.spider,request.callback),
+                request.spider,
+                request)
 

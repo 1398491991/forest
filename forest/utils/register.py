@@ -9,7 +9,6 @@ class RegisterSpider(object):
     """注册一个爬虫"""
     def __init__(self,spider):
         self.spider=spider
-        assert isinstance(self.spider.project_path,(list,tuple))
         self.project_path_keys=spider_project_path_keys%self.spider.name # 爬虫项目储存键值
 
     def register_spider_name(self):
@@ -21,12 +20,7 @@ class RegisterSpider(object):
 
     def register_project_path(self):
         """注册项目路径 一个爬虫允许多个路径（多台机器） 但是本地一定有"""
-        res=False
-        for path in self.spider.project_path:
-            if  os.path.exists(path):
-                res=True
-                break
-        if not res:
+        if not os.path.exists(self.spider.project_path):
             raise ProjectPathNotExistsException,self.spider.project_path
         try:
             # 不允许重复 所以用集合

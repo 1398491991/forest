@@ -9,7 +9,7 @@ class SelectorList(_ParselSelectorList):
 
     def extract_last(self, default=None):
         """
-        Return the result of ``.extract()`` for the first element in this list.
+        Return the result of ``.extract()`` for the last element in this list.
         If the list is empty, return the default value.
         """
         for x in self[-1::-1]:
