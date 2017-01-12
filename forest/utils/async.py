@@ -54,6 +54,8 @@ class TaskRoute(object):
 
         if is_item(obj):
             return self.delay_item(obj)
+
+        # 逻辑有待改进
         warnings.warn('route object type unknown %s , ignore'%obj)
 
     def collect(self,request):

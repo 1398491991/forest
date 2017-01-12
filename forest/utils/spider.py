@@ -7,18 +7,20 @@ from forest.settings.final_settings import *
 
 def get_spider_status(name):
     """根据爬虫名称 返回当前设置状态"""
-    res=rd_conn.get(spider_status_keys%name)
+    key=spider_status_keys%name
+    res=rd_conn.get(key)
     if not res:
         # 爬虫不存在
-        warnings.warn('spider <%s> not exist'%name)
+        warnings.warn('key <%s> not exist'%key)
     return res
 
 def get_spider_collect_status(name):
     """根据爬虫名称获取 是否同步请求"""
-    res=rd_conn.get(spider_off_collect_request_status_keys%name)
+    key=spider_off_collect_request_status_keys%name
+    res=rd_conn.get(key)
     if not res:
         # 爬虫不存在
-        warnings.warn('spider <%s> not exist'%name)
+        warnings.warn('key <%s> not exist'%key)
         res=1 # 默认同步 防止 出错
     return bool(int(res))
 
