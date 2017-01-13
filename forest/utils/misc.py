@@ -68,6 +68,14 @@ def pickle_loads(str):
     return pickle.loads(str)
 
 
+def update_sys_path(old_s,new_s,method='add'):
+    assert isinstance(old_s,list) # sys.path
+    if method=='add':
+        old_s+=list(new_s)
+    else:
+        old_s=set(old_s).difference(new_s)
+    return list(set(old_s))
+
 def walk_modules(path):
     """Loads a module and all its submodules from the given module path and
     returns them. If *any* module throws an exception while importing, that

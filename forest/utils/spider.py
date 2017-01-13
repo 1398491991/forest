@@ -39,3 +39,10 @@ def get_spider_project_path(name):
 def get_all_reload_spider_name():
     """返回所有需要 reload 的爬虫名集合"""
     return set()
+
+
+def get_all_sys_path():
+    """返回所有python环境路径
+    含有注册和非注册的(剔除)"""
+    return (set(),)*2
+    # return {'register':set(),'unregister':set()}
