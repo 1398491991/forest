@@ -28,3 +28,14 @@ def update_spider_status(name,status):
     """更新爬虫的状态"""
     assert status in ('on','off')
     return rd_conn.set(spider_status_keys%name,status)
+
+
+def get_spider_project_path(name):
+    """返回项目目录（不同机子不同）"""
+    # todo something..
+    return ''
+
+
+def get_all_reload_spider_name():
+    """返回所有需要 reload 的爬虫名集合"""
+    return set()
