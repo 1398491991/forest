@@ -39,9 +39,10 @@ class TaskRoute(object):
             if not request.spider:
                 request.spider=self.spider
             return request
-
-        request=if_not_spider(request)
-        tasks.process_request.delay(request)
+        if self.collect(request):
+            # 根据布尔是否继续 todo 以上版本都有这个问题
+            request=if_not_spider(request)
+            tasks.process_request.delay(request)
 
 
 
@@ -49,13 +50,13 @@ class TaskRoute(object):
         tasks.process_item.delay(item)
 
     def _route(self,obj):
-        if is_request(obj) and self.collect(obj):
+        if is_request(obj):
             return self.delay_request(obj)
 
         if is_item(obj):
             return self.delay_item(obj)
 
-        # 逻辑有待改进
+        # todo 修复
         warnings.warn('route object type unknown %s , ignore'%obj)
 
     def collect(self,request):
@@ -91,24 +92,6 @@ class TaskRoute(object):
 
 
 
-# class CollectRequest(object):
-#     def __init__(self,func,spider,obj):
-#         self.func=func
-#         self.spider=spider
-#         self.obj=obj
-#
-#     def collect(self):
-#         # 返回的 bool 是否进行下一步分发工序
-#         name=self.spider.name
-#         if get_spider_status(name)=='off' and is_request(self.obj):
-#             if get_spider_collect_status(name):
-#                 request_collect_to_redis(name,request=self.obj)
-#             return False
-#         # 爬虫关闭 检测是否同步请求
-#         # 如果是请求就收集到redis
-#         return True
-
-
 class RestoreRequest(object):
     """还原请求"""
 
@@ -119,16 +102,21 @@ class RestoreRequest(object):
 
     def restore(self):
         """恢复请求对象 始终返回 True 并且会分发出去"""
-        rs=request_restore_from_redis(self.spider.name)
-        for r in rs:
-            rp=self._parse(r)
-            tr=TaskRoute(*rp)
-            tr.route() # 分发
+        while 1:
+            request=request_restore_from_redis(self.spider.name) # todo 这是一个不包含 spider 实例的请求对象
+            if request:
+                warnings.warn('restore %s'%request)
+                rp=self._parse(request)
+                tr=TaskRoute(*rp)
+                tr.route() # 分发
+            else:
+                break
         return True
 
 
     def _parse(self,request):
-        return (getattr(request.spider,request.callback),
-                request.spider,
+        # 利用当前的 spider 对象 处理之前的 request ,可能会导致兼容性问题
+        return (getattr(self.spider,request.callback),
+                self.spider,
                 request)
 
