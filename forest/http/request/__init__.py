@@ -2,7 +2,6 @@
 # from scrapy import Request
 
 import json
-import requests
 from requests import Request as rq_Request
 
 class RequestBase(rq_Request):
@@ -73,9 +72,10 @@ class Request(RequestBase):
                                               'errorback','meta']
 
     def __init__(self,url,**kwargs):
+        self.spider=kwargs.pop('spider',None)
         self.callback=kwargs.pop('callback','parse')
         self.priority=kwargs.pop('priority',0)
-        self.encoding=kwargs.pop('encoding','utf-8')
+        self.encoding=kwargs.pop('encoding',None)
         self.dont_filter=kwargs.pop('dont_filter',False)
         self.errorback=kwargs.pop('errorback',None)
         self.meta = kwargs.pop('meta',{})

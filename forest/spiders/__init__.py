@@ -2,12 +2,86 @@
 # 自己编写  spider 的集合
 # from scrapy import Spider
 
+from forest.utils.misc import load_object
+from forest.utils.misc import obj_to_dict
+from forest.utils.xpython import Dict
+from forest.utils.load import LoadSpiderMiddleware,LoadSpiderPipeline
+from forest.db.rd import rd_conn
+from forest.decorator.async import async
+from forest.http import Request
+from forest.http import ResponseBase
+from forest.settings.final_settings import *
+import os
+from forest.utils.spider import update_spider_status
+
 class Spider(object):
+    """借鉴 scrapy """
+    name='forest' # example
+    start_urls=[]
+    project_path=''
+
+    def __init__(self,config):
+        self.config=Dict(config)
+        assert self.name # 不能为空
+        if not self.project_path: # 没有设置 那就调用方法
+            self.set_project_path()
+        assert os.path.exists(self.project_path)
+
+        self.start_urls_key=spider_start_urls_keys%self.name
+
+    @classmethod
+    def config_from_py(cls,config_path):
+        """通过配置文件加载"""
+        default_config=obj_to_dict(load_object(default_spider_settings_path))
+        config=obj_to_dict(load_object(config_path)) if config_path else {}
+
+        default_config.update(config) # 合并配置
+        return cls(default_config)
+
+
+    def load_ext(self):
+        """加载下载中间件实例列表 是否降序排序"""
+        self.mws=LoadSpiderMiddleware(self.config).load()
+        self.pips=LoadSpiderPipeline(self.config).load()
 
     def start(self):
         """爬虫的启动方法"""
-        pass
+        self.load_ext() # 加载中间件和管道
+        self.update_spider_status('on')
+        return self.make_init_request(ResponseBase())
 
+    def update_spider_status(self,status):
+        update_spider_status(self.name,status)
+
+    @async
+    def make_init_request(self,response):
+        """初始的请求来自于redis"""
+        t=rd_conn.type(self.start_urls_key)
+        urls=rd_conn.lrange(self.start_urls_key,0,-1) if t=='list' else rd_conn.smembers(self.start_urls_key,)
+        if urls:
+            return map(lambda url:Request(url),urls)
+
+        import warnings
+        warnings.warn('spider <%s> start urls is Null'%self.name)
+
+
+
+    def start_urls_to_redis(self,allow_same=False):
+        """将初始Url放入 redis """
+
+        f=rd_conn.rpush if allow_same else rd_conn.sadd
+        for url in self.start_urls:
+            f(self.start_urls_key,url)
+        # rd_conn.llen()
+
+    def set_project_path(self):
+        raise NotImplementedError
+
+
+    @async
     def parse(self,response):
         """默认回调调用的方法"""
-        pass
+        raise NotImplementedError
+        # self.project_path=os.path.abspath(os.path.join(os.path.dirname(__file__),os.pardir))
+
+

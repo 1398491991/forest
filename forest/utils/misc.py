@@ -1,3 +1,5 @@
+#coding=utf8
+
 """Helper functions which doesn't fit anywhere else"""
 import re
 import hashlib
@@ -49,6 +51,21 @@ def load_object(path):
         raise NameError("Module '%s' doesn't define any object named '%s'" % (module, name))
 
     return obj
+
+def obj_to_dict(obj,filter_startswith='__'):
+    """将配置文件 k,v 转换为映射
+    返回 dict 类型"""
+    obj_dict=obj.__dict__
+    return {k:obj_dict[k] for k in filter(lambda x:not x.startswith(filter_startswith),obj_dict)}
+
+
+import pickle
+
+def pickle_dumps(obj,protocol=None):
+    return pickle.dumps(obj,protocol)
+
+def pickle_loads(str):
+    return pickle.loads(str)
 
 
 def walk_modules(path):
