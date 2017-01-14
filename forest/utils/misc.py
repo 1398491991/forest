@@ -69,7 +69,7 @@ def pickle_loads(str):
 
 
 def update_sys_path(old_s,new_s,method='add'):
-    assert isinstance(old_s,list) # sys.path
+    # assert isinstance(old_s,list) # sys.path
     if method=='add':
         old_s+=list(new_s)
     else:

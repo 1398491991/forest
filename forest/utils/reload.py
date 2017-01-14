@@ -1,6 +1,9 @@
 # coding=utf-8
 """基于 redis"""
 from spider import get_spider_project_path
+import logging
+
+logger=logging.getLogger(__name__)
 
 class ReLoad(object):
     """根据爬虫名来重新导入环境，从而免去重启调度器的问题"""
@@ -22,12 +25,13 @@ class ReLoad(object):
             if v.startswith('<module'):
                 try:
                     reload(getattr(p,k))
-                except (AttributeError,ImportError):
-                    pass
+                    logger.info('reload %s'%k)
+                except (AttributeError,ImportError) as e:
+                    logger.error('reload error %s ,%s %s'%(e,k,v))
 
 import threading
 import time
-from spider import get_all_reload_spider_name
+from spider import get_all_reload_spider_name,set_spider_reload_status
 
 class ReLoadThread(threading.Thread):
     """监控 reload 的线程"""
@@ -35,7 +39,9 @@ class ReLoadThread(threading.Thread):
         ss=get_all_reload_spider_name()
         for s in ss:
             ReLoad(s).reload()
+            set_spider_reload_status(name=s,value=0) # 还原字段
         time.sleep(3) # todo 暂时的 3s 刷新一次
+
 
 
 

@@ -44,5 +44,10 @@ def get_all_reload_spider_name():
 def get_all_sys_path():
     """返回所有python环境路径
     含有注册和非注册的(剔除)"""
-    return (set(),)*2
+    return (rd_conn.smembers('forest:spider:forest:project_path'),set())
     # return {'register':set(),'unregister':set()}
+
+def set_spider_reload_status(name,value):
+    """设定reload布尔值"""
+    pass
+
