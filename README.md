@@ -5,7 +5,7 @@ project set (str)
 status str(on,off) (str)
 start_urls list or set (str)
 timeout map (int)
-user_ set (str)
+user_agent set (str)
 header set (dict) pickle
 proxy set (dict) pickle
 cache list (request) pickle
