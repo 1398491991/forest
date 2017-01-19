@@ -68,7 +68,6 @@ class Producer(multiprocessing.Process):
             return None
 
 
-
     def __collect_queue(self,queue,key,count):
         collect=[]
         for _ in frange(count):

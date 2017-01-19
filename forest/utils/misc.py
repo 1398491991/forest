@@ -23,3 +23,13 @@ def load_object(path):
         raise NameError("Module '%s' doesn't define any object named '%s'" % (module, name))
 
     return obj
+
+import socket
+
+
+def get_host_name():
+    return socket.getfqdn(socket.gethostname(  ))
+
+
+def get_host_ip():
+    return socket.gethostbyname(get_host_name())

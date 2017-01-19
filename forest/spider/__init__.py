@@ -4,6 +4,7 @@ from ..async import async
 
 class SimpleSpider(object):
     name=''
+    rules=[]
 
     def __init__(self):
         assert self.name

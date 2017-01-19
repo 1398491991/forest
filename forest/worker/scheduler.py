@@ -23,24 +23,5 @@ class EnqueueScheduler(object):
         if isinstance(obj,SimpleItem):
             pass
 
-
-class FilterScheduler(object):
-    """过滤无效的 request"""
-    def __init__(self,rules):
-        self.rules=rules
-
-    def scheduler(self,request):
-        return request
-
-
-class CollectScheduler(object):
-    """收集需要处理的 request"""
-    def __init__(self,rules):
-        self.rules=rules
-
-    def scheduler(self,request):
-        return request
-
-
-# class Callback
+enqueue_scheduler=EnqueueScheduler()
 

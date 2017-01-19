@@ -5,7 +5,7 @@ from functools import wraps
 from worker.scheduler import EnqueueScheduler
 from http.response import Response
 from http.request import Request
-enqueue_scheduler=EnqueueScheduler()
+from worker.scheduler import enqueue_scheduler
 
 def async(func):
 
