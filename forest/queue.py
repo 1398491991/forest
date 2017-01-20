@@ -29,15 +29,20 @@ class Base(object):
 
 
 
-class Queue(Base):
+class PlainQueue(Base):
     """Per-spider FIFO queue"""
 
     def __len__(self,key):
         """Return the length of the queue"""
         return self.server.llen(key)
 
-    def push(self, key,obj):
+    def push(self, key,obj,x=False):
         """Push a obj"""
+        if x:
+            # LPUSHX key value
+            # 在前面加上一个值列表，仅当列表中存在
+            return self.server.lpushx(key,obj) # 可能或出错 todo 捕捉错误
+
         return self.server.lpush(key, obj)
 
     def pop(self, key,timeout=0):
@@ -60,6 +65,13 @@ class PriorityQueue(Base):
 
     def push(self, key ,obj,**kwargs):
         """Push a obj"""
+            #　todo 待实现
+            # ,x=False):
+            #         """Push a obj"""
+            #         if x:
+            #             LPUSHX key value
+                        # 在前面加上一个值列表，仅当列表中存在
+            # return self.server.lpishx(key,obj) # 可能或出错 todo 捕捉错误
         priority=kwargs.pop('priority',0)
         return self.server.execute_command('ZADD', key, priority, obj)
 
@@ -83,8 +95,11 @@ class StackQueue(Base):
         """Return the length of the stack"""
         return self.server.llen(key)
 
-    def push(self,key, obj):
+    def push(self,key, obj,x=False):
         """Push a obj"""
+        if x:
+            return self.server.lpushx(key,obj) # 可能或出错 todo 捕捉错误
+
         return self.server.lpush(key, obj)
 
     def pop(self,key, timeout=0):
@@ -97,3 +112,9 @@ class StackQueue(Base):
             data = self.server.lpop(key)
 
         return data
+
+from rd import rd_conn
+
+stackQueue=StackQueue(rd_conn)
+priorityQueue=PriorityQueue(rd_conn)
+plainQueue=PlainQueue(rd_conn)
