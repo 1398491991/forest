@@ -39,7 +39,7 @@ class ResponseMixture(object):
 
 
     def __str__(self):
-        return "<%s % s>" % (self.response.status_code, self.response.url)
+        return "<%s %s>" % (self.response.status_code, self.response.url)
 
     __repr__ = __str__
 

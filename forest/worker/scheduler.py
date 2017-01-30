@@ -8,17 +8,19 @@ from ..slave.info import slaveInfo
 from ..utils.misc import get_host_name
 import config
 
-APPOINT_QUEUE_REQUEST_KEY=config.APPOINT_QUEUE_REQUEST_KEY
-PUBLIC_PRIORITY_QUEUE_REQUEST_KEY=config.PUBLIC_PRIORITY_QUEUE_REQUEST_KEY
-PUBLIC_QUEUE_REQUEST_KEY=config.PUBLIC_QUEUE_REQUEST_KEY
+HOST_NAME=get_host_name()
 
-APPOINT_QUEUE_ITEM_KEY=config.APPOINT_QUEUE_ITEM_KEY
-PUBLIC_PRIORITY_QUEUE_ITEM_KEY=config.PUBLIC_PRIORITY_QUEUE_ITEM_KEY
-PUBLIC_QUEUE_ITEM_KEY=config.PUBLIC_QUEUE_ITEM_KEY
+LOCAL_APPOINT_QUEUE_REQUEST_KEY=config.APPOINT_QUEUE_REQUEST_KEY%{'hostname':HOST_NAME}
+LOCAL_PUBLIC_PRIORITY_QUEUE_REQUEST_KEY=config.PUBLIC_PRIORITY_QUEUE_REQUEST_KEY%{'hostname':HOST_NAME}
+LOCAL_PUBLIC_QUEUE_REQUEST_KEY=config.PUBLIC_QUEUE_REQUEST_KEY%{'hostname':HOST_NAME}
+
+LOCAL_APPOINT_QUEUE_ITEM_KEY=config.APPOINT_QUEUE_ITEM_KEY%{'hostname':HOST_NAME}
+LOCAL_PUBLIC_PRIORITY_QUEUE_ITEM_KEY=config.PUBLIC_PRIORITY_QUEUE_ITEM_KEY%{'hostname':HOST_NAME}
+LOCAL_PUBLIC_QUEUE_ITEM_KEY=config.PUBLIC_QUEUE_ITEM_KEY%{'hostname':HOST_NAME}
 
 MAX_PROCESS_COUNT_KEY=config.MAX_PROCESS_COUNT_KEY
 
-HOST_NAME=get_host_name()
+
 
 
 
@@ -62,10 +64,10 @@ class EnqueueItemScheduler(EnqueueBaseScheduler):
 
 class CollectBaseScheduler(object):
 
-    def __collect(self,queue_instance,key,count):
+    def _collect(self,queue_instance,key,count):
         """从不同队列取出对象 按照 count 的个数 ， count <=0 all 主要用于 交接过程"""
         if count<=0:
-            # 交接过程
+            # 返回全部 一般适用于交接过程
             pipe=queue_instance.pipeline()
             pipe.multi()
             collect=pipe.lrange(key,0,-1)
@@ -102,17 +104,17 @@ class CollectRequestScheduler(CollectBaseScheduler):
         return collect
 
     def handover_collect(self):
-        return self.__collect(plainQueue,APPOINT_QUEUE_REQUEST_KEY,-1)
+        return self._collect(plainQueue,LOCAL_APPOINT_QUEUE_REQUEST_KEY,-1)
 
     def collect_appoint_request(self,count):
         """收集委托的 请求"""
-        return self.__collect(plainQueue,APPOINT_QUEUE_REQUEST_KEY,count)
+        return self._collect(plainQueue,LOCAL_APPOINT_QUEUE_REQUEST_KEY,count)
 
     def collect_public_priority_request(self,count):
-        return self.__collect(priorityQueue,PUBLIC_PRIORITY_QUEUE_REQUEST_KEY,count)
+        return self._collect(priorityQueue,LOCAL_PUBLIC_PRIORITY_QUEUE_REQUEST_KEY,count)
 
     def collect_public_request(self,count):
-        return self.__collect(plainQueue,PUBLIC_QUEUE_REQUEST_KEY,count)
+        return self._collect(plainQueue,LOCAL_PUBLIC_QUEUE_REQUEST_KEY,count)
 
 
 class CollectItemScheduler(CollectBaseScheduler):
@@ -127,17 +129,17 @@ class CollectItemScheduler(CollectBaseScheduler):
         return collect
 
     def handover_collect(self):
-        return self.__collect(plainQueue,APPOINT_QUEUE_ITEM_KEY,-1)
+        return self._collect(plainQueue,APPOINT_QUEUE_ITEM_KEY,-1)
 
     def collect_appoint_item(self,count):
         """收集委托的 请求"""
-        return self.__collect(plainQueue,APPOINT_QUEUE_ITEM_KEY,count)
+        return self._collect(plainQueue,APPOINT_QUEUE_ITEM_KEY,count)
 
     def collect_public_priority_item(self,count):
-        return self.__collect(priorityQueue,PUBLIC_PRIORITY_QUEUE_ITEM_KEY,count)
+        return self._collect(priorityQueue,PUBLIC_PRIORITY_QUEUE_ITEM_KEY,count)
 
     def collect_public_item(self,count):
-        return self.__collect(plainQueue,PUBLIC_QUEUE_ITEM_KEY,count)
+        return self._collect(plainQueue,PUBLIC_QUEUE_ITEM_KEY,count)
 
 enqueueRequestScheduler=EnqueueRequestScheduler()
 enqueueItemScheduler=EnqueueItemScheduler()
@@ -147,7 +149,10 @@ collectRequestScheduler=CollectRequestScheduler()
 
 class JobHandoverScheduler(object):
     """工作移交"""
-    def job_handover(self,hostname):
+    def job_handover(self):
         map(enqueueRequestScheduler.enqueue,collectRequestScheduler.handover_collect())
         map(enqueueItemScheduler.enqueue,collectItemScheduler.handover_collect())
+
+jobHandoverScheduler=JobHandoverScheduler()
+
 

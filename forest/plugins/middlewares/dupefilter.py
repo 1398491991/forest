@@ -1,7 +1,5 @@
 #coding=utf-8
 
-from scrapy.utils.request import request_fingerprint
-# from forest.db.rd import rd_conn
 
 class DupeFilterMiddleware(object):
 

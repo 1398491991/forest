@@ -2,22 +2,33 @@
 
 
 from functools import wraps
-from worker.scheduler import EnqueueScheduler
 from http.response import Response
 from http.request import Request
-from worker.scheduler import enqueue_scheduler
+from .item import Item
+from worker.scheduler import enqueueRequestScheduler
+from worker.scheduler import enqueueItemScheduler
 
 def async(func):
 
     @wraps(func)
     def decorator(self,obj): # self == spider
+        if not obj or isinstance(obj,Item):
+            return
+
+        res=[]
+
         if isinstance(obj,Response):
-            res=func(self,obj)
+            res=func(self,obj) # 执行解析方法
             if not isinstance(res,(list,tuple)):
                 res=[res]
-        else:
-            # method=obj['method'].upper()
-            res=[Request(**obj)]
-        return map(enqueue_scheduler.scheduler,res)
+
+        elif isinstance(obj,Request):# 无用的请求 再次
+            res=[obj]
+
+        for obj in res: # 针对结果 异步处理
+            if isinstance(obj,Request):
+                enqueueRequestScheduler.enqueue(obj)
+            elif isinstance(obj,Item):
+                enqueueItemScheduler.enqueue(obj)
 
     return decorator

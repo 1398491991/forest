@@ -28,7 +28,7 @@ import socket
 
 
 def get_host_name():
-    return socket.getfqdn(socket.gethostname(  ))
+    return socket.getfqdn(socket.gethostname())
 
 
 def get_host_ip():

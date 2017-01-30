@@ -1,7 +1,7 @@
 #coding=utf8
 """队列"""
 
-class Base(object):
+class QueueBase(object):
     """Per-spider queue/stack base class"""
 
     def __init__(self, server):
@@ -14,6 +14,10 @@ class Base(object):
 
         """
         self.server = server
+
+    def pipeline(self):
+        return self.server.pipeline()
+
 
     def __len__(self,key):
         """Return the length of the queue"""
@@ -29,8 +33,8 @@ class Base(object):
 
 
 
-class PlainQueue(Base):
-    """Per-spider FIFO queue"""
+class PlainQueue(QueueBase):
+    """简单的先进先出队列"""
 
     def __len__(self,key):
         """Return the length of the queue"""
@@ -41,7 +45,7 @@ class PlainQueue(Base):
         if x:
             # LPUSHX key value
             # 在前面加上一个值列表，仅当列表中存在
-            return self.server.lpushx(key,obj) # 可能或出错 todo 捕捉错误
+            return self.server.lpushx(key,obj) # 添加失败返回 0
 
         return self.server.lpush(key, obj)
 
@@ -56,22 +60,18 @@ class PlainQueue(Base):
         return data
 
 
-class PriorityQueue(Base):
-    """Per-spider priority queue abstraction using redis' sorted set"""
+class PriorityQueue(QueueBase):
+    """一个优先级队列  根据 redis 的有序集合实现"""
 
     def __len__(self,key):
         """Return the length of the queue"""
         return self.server.zcard(key)
 
-    def push(self, key ,obj,**kwargs):
+    def push(self, key ,obj,x=False,**kwargs):
         """Push a obj"""
-            #　todo 待实现
-            # ,x=False):
-            #         """Push a obj"""
-            #         if x:
-            #             LPUSHX key value
-                        # 在前面加上一个值列表，仅当列表中存在
-            # return self.server.lpishx(key,obj) # 可能或出错 todo 捕捉错误
+        if x and not self.server.exists(key):
+            # 键值不存在 不插入
+            return 0
         priority=kwargs.pop('priority',0)
         return self.server.execute_command('ZADD', key, priority, obj)
 
@@ -88,7 +88,7 @@ class PriorityQueue(Base):
         return results[0] if results else None
 
 
-class StackQueue(Base):
+class StackQueue(QueueBase):
     """Per-spider stack"""
 
     def __len__(self,key):
