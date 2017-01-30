@@ -9,6 +9,21 @@ import config
 
 SPIDER_INSTANCE_KEY=config.SPIDER_INSTANCE_KEY
 
+class SpiderImportError(Exception):
+    def __init__(self,name):
+        self.name=name
+
+    def __repr__(self):
+        return '<spider "%s" import error>'%self.name
+
+class SpiderInstanceExistError(Exception):
+    def __init__(self,name):
+        self.name=name
+
+    def __repr__(self):
+        return '<spider "%s" instance exist>'%self.name
+
+
 class SpiderInstanceManager(object):
     """管理spider 实例"""
     def get_spider_instance(self,spider_name,to_obj=True,
@@ -32,7 +47,7 @@ class SpiderInstanceManager(object):
             return spider_instance
 
         except ImportError:
-            return Exception
+            raise SpiderImportError,spider_name
 
     def set_spider_instance(self,spider_instance,spider_name=None,
                             to_pickle=False):
@@ -46,7 +61,8 @@ class SpiderInstanceManager(object):
 
         key=SPIDER_INSTANCE_KEY%{'spider_name':spider_name}
         if rd_conn.exists(key):
-            raise Exception
+            raise SpiderInstanceExistError,spider_name
+
         if to_pickle:
             spider_instance=dump_pickle(spider_instance)
         return rd_conn.set(key,spider_instance)

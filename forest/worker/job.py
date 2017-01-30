@@ -22,12 +22,10 @@ class JobItemProcess(multiprocessing.Process):
     def run(self):
         self.pid_to_redis()
         producerItem=ProducerItem(5)
-        t1=threading.Thread(target=producerItem.loop,)
-        t2=threading.Thread(target=producerItem.thread_pool.poll,args=(True,))
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
+        t=threading.Thread(target=producerItem.thread_pool.poll,args=(True,))
+        t.start()
+        producerItem.loop()
+        t.join()
 
 class JobRequestProcess(multiprocessing.Process):
 
@@ -38,12 +36,7 @@ class JobRequestProcess(multiprocessing.Process):
     def run(self):
         self.pid_to_redis()
         producerRequest=ProducerRequest(5)
-        t1=threading.Thread(target=producerRequest.loop,)
-        t2=threading.Thread(target=producerRequest.thread_pool.poll,args=(True,))
-        # t1.setDaemon(1)
-        # t2.setDaemon(1)
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
-        # print 12313
+        t=threading.Thread(target=producerRequest.thread_pool.poll,args=(True,))
+        t.start()
+        producerRequest.loop()
+        t.join()

@@ -21,8 +21,6 @@ MAX_PROCESS_COUNT_KEY=config.MAX_PROCESS_COUNT_KEY
 
 
 
-
-
 class EnqueueBaseScheduler(object):
     PUBLIC_PRIORITY_QUEUE_KEY=''
     PUBLIC_QUEUE_KEY=''

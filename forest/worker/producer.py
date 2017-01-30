@@ -1,5 +1,4 @@
 #coding=utf-8
-from .worker import ThreadPool
 from scheduler import collectRequestScheduler,collectItemScheduler
 from ..utils.serializable import load_json
 from ..worker import spiderInstanceManager
@@ -10,6 +9,33 @@ from ..http.request import Request
 # from ..item import Item
 from ..utils.select import Selector
 import time
+import threadpool
+
+class ThreadPool(threadpool.ThreadPool):
+    def poll(self, block=False):
+        """Process any new results in the queue."""
+        while True:
+            # still results pending?
+            if not self.workRequests:
+                print 'NoResultsPending'
+            # are there still workers to process remaining requests?
+            elif block and not self.workers:
+                print  'NoWorkersAvailable'
+            try:
+                # get back next results
+                request, result = self._results_queue.get(block=block)
+                # has an exception occured?
+                if request.exception and request.exc_callback:
+                    request.exc_callback(request, result)
+                # hand results to callback, if any
+                if request.callback and not \
+                       (request.exception and request.exc_callback):
+                    request.callback(request, result)
+                del self.workRequests[request.requestID]
+            except Exception:
+                pass
+                # break
+
 
 
 BASE_REQUEST_PARAMS=['method','url','headers','files',
@@ -44,12 +70,15 @@ class ProducerBase(object):
         # 收集到的都是 json 数据的列表
         for c in collect_result:
             c=load_json(c) # 反序列化
-            task = self.thread_pool.makeRequests(self.process_task,
-                                                ((c,),{}),
-                                                 self.succ_callback,
-                                                 self.exce_callback
-                                                 )
-            self.thread_pool.putRequest(task,)
+            self.thread_pool.putRequest(
+                threadpool.WorkRequest(
+                    self.process_task,
+                    (c,), {},
+                    callback=self.succ_callback,
+                    exc_callback=self.exce_callback
+                )
+
+                                        )
 
 
     def get_spider_instance(self,spider_name): # 快捷方式
@@ -59,7 +88,7 @@ class ProducerBase(object):
         """获取来自爬虫实例名称"""
         name=obj['from_spider']
         if not name:
-            raise Exception
+            raise Exception,'obj from_spider param is None'
 
 
     # 以下为继承实现
@@ -70,7 +99,7 @@ class ProducerBase(object):
         pass
 
     def exce_callback(self,obj,result):
-        pass
+        print obj,result
 
 
 class ProducerRequest(ProducerBase):
@@ -78,7 +107,7 @@ class ProducerRequest(ProducerBase):
     collectScheduler = collectRequestScheduler
 
 
-    def process(self,request):
+    def process_task(self,request):
         """返回 响应  请求 或者 None """
         # assert isinstance(request,dict)
         spider_name=self.get_from_spider_name(request)
@@ -90,7 +119,7 @@ class ProducerRequest(ProducerBase):
             if not request:
                 # 返回 None 表示放弃这个请求
                 break
-
+        print 21323
         if request:
             return self.download_request(request) # download
 
@@ -112,6 +141,7 @@ class ProducerRequest(ProducerBase):
 
 
     def download_request(self,request):
+        print 44444
         """只有正确的才能请求  否则就不会再次异步 """
         kwargs = {k:request[k] for k in BASE_REQUEST_PARAMS}
         try:
