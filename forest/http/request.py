@@ -3,7 +3,7 @@ import requests
 from ..utils.serializable import dump_json
 
 class SimpleRequest(requests.Request):
-    def __init__(self,method=None, url=None, headers=None, files=None,
+    def __init__(self,url,method=None, headers=None, files=None,
         data=None, params=None, auth=None, cookies=None, hooks=None, json=None,
                  # ext
                  from_spider=None,project_path=None,callback='parse',

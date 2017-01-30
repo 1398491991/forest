@@ -43,8 +43,8 @@ class ResponseMixture(object):
 
     __repr__ = __str__
 
-
-Response=ResponseMixture
+class Response(ResponseMixture):
+    pass
 
 
 

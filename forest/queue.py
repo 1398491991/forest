@@ -98,7 +98,7 @@ class StackQueue(QueueBase):
     def push(self,key, obj,x=False):
         """Push a obj"""
         if x:
-            return self.server.lpushx(key,obj) # 可能或出错 todo 捕捉错误
+            return self.server.lpushx(key,obj) # 失败 返回 0
 
         return self.server.lpush(key, obj)
 

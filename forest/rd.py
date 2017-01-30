@@ -1,8 +1,9 @@
 #coding=utf-8
-import redis
 from redis import Redis
+import config
+REDIS_CONFIG=config.REDIS_CONFIG
 
-# def get_rd_conn():
-#     return redis.Redis()
-# print dir(redis)
-rd_conn=Redis()#redis.StrictRedis()#Redis()#get_rd_conn()
+def get_rd_conn():
+    return Redis(**REDIS_CONFIG)
+
+rd_conn=get_rd_conn()

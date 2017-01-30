@@ -1,7 +1,7 @@
 #coding=utf-8
 from ConfigParser import SafeConfigParser
 import os
-import sys
+# import sys
 
 class CustomConfigNotExistException(Exception):
     def __init__(self,path):
@@ -16,7 +16,7 @@ class CustomConfigNotExistException(Exception):
 
 class ParseConfig(object):
 
-    default_config_path=r'd:\forest\forest\config.ini'
+    default_config_path=r'd:\forest\forest\config\config.ini'
     # default_config_path='/mnt/hgfs/project/forest/forest/config.ini'
 
     def __init__(self):
