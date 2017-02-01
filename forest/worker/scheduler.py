@@ -1,10 +1,7 @@
 #coding=utf8
-# from ..http.request import SimpleRequest
-# from ..item import SimpleItem
-# from ..static import *
 from ..compat import frange
 from ..queue import plainQueue,priorityQueue #,stackQueue
-from ..slave.info import slaveInfo
+from ..manager.slave_info import slaveInfoManager
 import config
 
 LOCAL_HOST_NAME=config.LOCAL_HOST_NAME
@@ -17,7 +14,6 @@ APPOINT_QUEUE_ITEM_KEY=config.APPOINT_QUEUE_ITEM_KEY
 PUBLIC_PRIORITY_QUEUE_ITEM_KEY=config.PUBLIC_PRIORITY_QUEUE_ITEM_KEY
 PUBLIC_QUEUE_ITEM_KEY=config.PUBLIC_QUEUE_ITEM_KEY
 
-MAX_PROCESS_COUNT_KEY=config.MAX_PROCESS_COUNT_KEY
 
 
 
@@ -89,6 +85,7 @@ class CollectBaseScheduler(object):
     PUBLIC_PRIORITY_QUEUE_KEY=''
     PUBLIC_QUEUE_KEY=''
     APPOINT_QUEUE_KEY=''
+    hostname=LOCAL_HOST_NAME
 
 
     def _collect(self,queue_instance,key,count):
@@ -110,21 +107,21 @@ class CollectBaseScheduler(object):
                 collect.append(obj)
         return collect
 
-    def collect(self,count=None,collect_host_name=LOCAL_HOST_NAME):
-        count=count or self.get_max_process_count(collect_host_name)
+    def collect(self,count=None):
+        count=count or self.get_parallel_producer_size()
         # assert count
         collect=[]
-        collect+=self.collect_appoint_request(count,collect_host_name)
+        collect+=self.collect_appoint_request(count)
         collect+=self.collect_public_priority_request(count-len(collect))
         collect+=self.collect_public_request(count-len(collect))
         return collect
 
-    def handover_collect(self,collect_host_name=LOCAL_HOST_NAME):
-        return self._collect(plainQueue,self.APPOINT_QUEUE_KEY%{'hostname':collect_host_name},-1)
+    def handover_collect(self):
+        return self._collect(plainQueue,self.APPOINT_QUEUE_KEY%{'hostname':self.hostname},-1)
 
-    def collect_appoint_request(self,count,collect_host_name=LOCAL_HOST_NAME):
+    def collect_appoint_request(self,count):
         """收集委托的 请求"""
-        return self._collect(plainQueue,self.APPOINT_QUEUE_KEY%{'hostname':collect_host_name},
+        return self._collect(plainQueue,self.APPOINT_QUEUE_KEY%{'hostname':self.hostname},
                              count)
 
     def collect_public_priority_request(self,count):
@@ -134,7 +131,7 @@ class CollectBaseScheduler(object):
         return self._collect(plainQueue,self.PUBLIC_QUEUE_KEY,count)
 
 
-    def get_max_process_count(self,collect_host_name=LOCAL_HOST_NAME):
+    def get_parallel_producer_size(self):
         raise NotImplementedError
 
 
@@ -144,8 +141,9 @@ class CollectRequestScheduler(CollectBaseScheduler):
     PUBLIC_QUEUE_KEY=PUBLIC_QUEUE_REQUEST_KEY
     APPOINT_QUEUE_KEY=APPOINT_QUEUE_REQUEST_KEY
 
-    def get_max_process_count(self,collect_host_name=LOCAL_HOST_NAME):
-        return slaveInfo.get_max_process_request_count(collect_host_name)
+    def get_parallel_producer_size(self):
+
+        return slaveInfoManager.get_parallel_producer_request_size()
 
 
 
@@ -154,8 +152,8 @@ class CollectItemScheduler(CollectBaseScheduler):
     PUBLIC_QUEUE_KEY=PUBLIC_QUEUE_ITEM_KEY
     APPOINT_QUEUE_KEY=APPOINT_QUEUE_ITEM_KEY
 
-    def get_max_process_count(self,collect_host_name=LOCAL_HOST_NAME):
-        return slaveInfo.get_max_process_item_count(collect_host_name)
+    def get_parallel_producer_size(self):
+        return slaveInfoManager.get_parallel_producer_item_size()
 
 
 enqueueRequestScheduler=EnqueueRequestScheduler()
@@ -172,14 +170,12 @@ class JobHandoverScheduler(object):
         # 也许需要 事务处理
         map(lambda x:
             enqueueRequestScheduler.enqueue(x,True,handover_host_name),
-            collectRequestScheduler.handover_collect(collect_host_name=
-                                                     handover_host_name)
+            collectRequestScheduler.handover_collect()
             )
 
         map(lambda x:
             enqueueItemScheduler.enqueue(x,True,handover_host_name),
-            collectItemScheduler.handover_collect(collect_host_name=
-                                                    handover_host_name)
+            collectItemScheduler.handover_collect()
             )
 
 jobHandoverScheduler=JobHandoverScheduler()

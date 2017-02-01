@@ -3,7 +3,7 @@ from six.moves.urllib.parse import urljoin
 import six
 
 
-class ResponseMixture(object):
+class Response(object):
 
     def __init__(self,response,select):
         self.response=response
@@ -42,9 +42,6 @@ class ResponseMixture(object):
         return "<%s %s>" % (self.response.status_code, self.response.url)
 
     __repr__ = __str__
-
-class Response(ResponseMixture):
-    pass
 
 
 

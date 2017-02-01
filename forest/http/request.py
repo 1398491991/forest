@@ -2,7 +2,7 @@
 import requests
 from ..utils.serializable import dump_json
 
-class SimpleRequest(requests.Request):
+class Request(requests.Request):
     def __init__(self,url,method=None, headers=None, files=None,
         data=None, params=None, auth=None, cookies=None, hooks=None, json=None,
                  # ext
@@ -10,10 +10,11 @@ class SimpleRequest(requests.Request):
                  priority=0,appoint_name=None,meta=None,
                  # replace
                  replace_optional=None):
-        super(SimpleRequest,self).__init__(method, url, headers, files,
+        super(Request,self).__init__(method, url, headers, files,
         data, params, auth, cookies, hooks, json)
 
         self.from_spider=from_spider
+        assert isinstance(priority,int)
         self.priority=priority
         self.meta=meta or {}
         self.appoint_name=appoint_name
@@ -31,8 +32,3 @@ class SimpleRequest(requests.Request):
         return '<Request [%s] [%s]>' % (self.method,self.url)
 
     __str__=__repr__
-
-
-
-class Request(SimpleRequest):
-    pass

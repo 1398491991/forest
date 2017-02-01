@@ -1,7 +1,7 @@
 #coding=utf-8
 from scheduler import collectRequestScheduler,collectItemScheduler
 from ..utils.serializable import load_json
-from ..worker import spiderInstanceManager
+from ..manager.spider_instance import spiderInstanceManager
 # import config
 import requests
 from ..http.response import Response
@@ -10,6 +10,11 @@ from ..http.request import Request
 from ..utils.select import Selector
 import time
 import threadpool
+
+class WorkRequest(threadpool.WorkRequest):
+    def extract_http_request_dict(self):
+        return self.args[0]
+
 
 class ThreadPool(threadpool.ThreadPool):
     def poll(self, block=False):
@@ -32,9 +37,12 @@ class ThreadPool(threadpool.ThreadPool):
                        (request.exception and request.exc_callback):
                     request.callback(request, result)
                 del self.workRequests[request.requestID]
-            except Exception:
-                pass
+            except Exception as e:
+                print 'error %s'%e
                 # break
+
+    def loop(self, block=False):
+        return self.poll(block)
 
 
 
@@ -71,7 +79,7 @@ class ProducerBase(object):
         for c in collect_result:
             c=load_json(c) # 反序列化
             self.thread_pool.putRequest(
-                threadpool.WorkRequest(
+                WorkRequest(
                     self.process_task,
                     (c,), {},
                     callback=self.succ_callback,
@@ -89,17 +97,18 @@ class ProducerBase(object):
         name=obj['from_spider']
         if not name:
             raise Exception,'obj from_spider param is None'
+        return name
 
 
     # 以下为继承实现
     def process_task(self,obj):
         raise NotImplementedError
 
-    def succ_callback(self,obj,result):
-        pass
+    def succ_callback(self,work_request,result):
+        print work_request,result
 
-    def exce_callback(self,obj,result):
-        print obj,result
+    def exce_callback(self,work_request,result):
+        print work_request,result
 
 
 class ProducerRequest(ProducerBase):
@@ -113,26 +122,24 @@ class ProducerRequest(ProducerBase):
         spider_name=self.get_from_spider_name(request)
         spider_instance=self.get_spider_instance(spider_name)
 
-        mws=spider_instance.mws
-        for mw in mws:
-            request=mw.process_request(request)
-            if not request:
+        # mws=spider_instance.mws # todo 待实现
+        # for mw in mws:
+        #     request=mw.process_request(request)
+        #     if not request:
                 # 返回 None 表示放弃这个请求
-                break
-        print 21323
+                # break
         if request:
             return self.download_request(request) # download
 
 
-    def succ_callback(self,request,result):
+    def succ_callback(self,work_request,result):
         # 回调请求
+        # assert isinstance(work_request,WorkRequest)
+        request=work_request.extract_http_request_dict()
         if isinstance(result,Response):
-            spider_name=request.get('from_spider')
-            if not spider_name:
-                raise Exception
+            spider_name=request['from_spider']
             spider_instance=spiderInstanceManager.get_spider_instance(spider_name,)
-            return getattr(spider_instance,result['callback'])(result)
-
+            return getattr(spider_instance,request['callback'])(result)
         if isinstance(result,Request):# 原路返回 再次分发
             return result
 
@@ -141,7 +148,6 @@ class ProducerRequest(ProducerBase):
 
 
     def download_request(self,request):
-        print 44444
         """只有正确的才能请求  否则就不会再次异步 """
         kwargs = {k:request[k] for k in BASE_REQUEST_PARAMS}
         try:

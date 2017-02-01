@@ -9,21 +9,27 @@ APPOINT_QUEUE_REQUEST_KEY='forest:appoint_queue:%(hostname)s:request'
 PUBLIC_PRIORITY_QUEUE_REQUEST_KEY='forest:public_priority_queue:request'
 PUBLIC_QUEUE_REQUEST_KEY='forest:public_queue:request'
 
-SPIDER_INSTANCE_KEY='forest:spider_instance:%(spider_name)'
+SPIDER_INSTANCE_KEY='forest:spider_instance:%(spider_name)s'
 
 APPOINT_QUEUE_ITEM_KEY='forest:appoint_queue:%(hostname)s:item'
 PUBLIC_PRIORITY_QUEUE_ITEM_KEY='forest:public_priority_queue:%(hostname)s:item'
 PUBLIC_QUEUE_ITEM_KEY='forest:public_queue:%(hostname)s:item'
 
 
-MAX_PROCESS_REQUEST_COUNT_KEY='forest:%(hostname)s:max_process_request_count'
-DEFAULT_MAX_PROCESS_REQUEST_COUNT=10
+PARALLEL_PRODUCER_REQUEST_SIZE_KEY='forest:%(hostname)s:PARALLEL_PRODUCER_REQUEST_SIZE_KEY'
+PARALLEL_PRODUCER_ITEM_SIZE_KEY='forest:%(hostname)s:PARALLEL_PRODUCER_ITEM_SIZE_KEY'
 
-MAX_PROCESS_ITEM_COUNT_KEY='forest:%(hostname)s:max_process_item_count'
-DEFAULT_MAX_PROCESS_ITEM_COUNT=10
+DEFAULT_PARALLEL_PRODUCER_REQUEST_SIZE=5
+DEFAULT_PARALLEL_PRODUCER_ITEM_SIZE=5
 
-MAX_PROCESS_COUNT_KEY='forest:%(hostname)s:max_process_count'
-DEFAULT_MAX_PROCESS_COUNT=3
+PARALLEL_JOB_ITEM_SIZE_KEY='forest:%(hostname)s:PARALLEL_JOB_ITEM_SIZE'
+PARALLEL_JOB_REQUEST_SIZE_KEY='forest:%(hostname)s:PARALLEL_JOB_REQUEST_SIZE'
+
+
+DEFAULT_PARALLEL_JOB_REQUEST_SIZE=1
+DEFAULT_PARALLEL_JOB_ITEM_SIZE=1
+
+
 
 JOB_REQUEST_PID_KEY='forest:%(hostname)s:request_pids'
 JOB_ITEM_PID_KEY='forest:%(hostname)s:item_pids'
