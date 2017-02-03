@@ -10,6 +10,8 @@ PUBLIC_PRIORITY_QUEUE_REQUEST_KEY='forest:public_priority_queue:request'
 PUBLIC_QUEUE_REQUEST_KEY='forest:public_queue:request'
 
 SPIDER_INSTANCE_KEY='forest:spider_instance:%(spider_name)s'
+SPIDER_NAME_KEY='forest:spider_name' # set
+SPIDER_PROJECT_PATH_KEY='forest:spider_name:%(spider_name)s' # set
 
 APPOINT_QUEUE_ITEM_KEY='forest:appoint_queue:%(hostname)s:item'
 PUBLIC_PRIORITY_QUEUE_ITEM_KEY='forest:public_priority_queue:%(hostname)s:item'

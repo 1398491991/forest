@@ -7,8 +7,18 @@ class Spider(object):
     name=''
     rules=[]
 
+    info={"spider_name":"demo",
+        "project_path":[],
+        "retry_count":3,
+        "url_max_length":None,
+        "url_min_length":None,
+        "cookies":{},
+        "bad_urls":[],
+        }
+
     def __init__(self):
         assert self.name
+        assert self.info
 
     @async
     def parse(self,response):
@@ -19,7 +29,7 @@ class Spider(object):
         self.mws=map(lambda x:load_object(x)(),mws_path_sort_list)
         self.pipes=map(lambda x:load_object(x)(),pipes_path_sort_list)
 
-    def to_pickle(self):
+    def spider_to_pickle(self):
         return dump_pickle(self)
 
     def __repr__(self):
