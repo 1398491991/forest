@@ -18,6 +18,8 @@ class ParseConfig(object):
 
     default_config_path=r'd:\forest\forest\config\config.ini'
     # default_config_path='/mnt/hgfs/project/forest/forest/config.ini'
+    # default_config_path='/mnt/hgfs/forest/forest/config/config.ini'
+    assert os.path.isfile(default_config_path),'default_config_path not exist'
 
     def __init__(self):
         self.cf=SafeConfigParser()
@@ -35,7 +37,7 @@ class ParseConfig(object):
         path=self.cf.get('custom','config_path',self.default_config_path)
         if not path:
             path=self.default_config_path
-        if not os.path.exists(path):
+        if not os.path.isfile(path):
             raise CustomConfigNotExistException(path)
         return path
 

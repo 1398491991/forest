@@ -9,4 +9,4 @@ class testSpider(Spider):
 
     @async
     def parse(self,response):
-        return [Request(url='http://127.0.0.1:5000/123',method='get')]*10
+        return [Request(url='http://127.0.0.1:5000/123',method='get')]

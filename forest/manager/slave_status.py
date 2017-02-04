@@ -34,8 +34,8 @@ class SlaveStatusBaseManager(object):
                 p=self.jobProcessClass()
                 p.start()
                 self.add_pid(pipe,p.pid)
-            except:
-                pass
+            except Exception as e:
+                print 'start error %s'%e
             else:
                 pipe.execute()
 

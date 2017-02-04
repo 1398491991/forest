@@ -6,30 +6,23 @@ from ..async import async
 class Spider(object):
     name=''
     rules=[]
-
-    info={"spider_name":"demo",
-        "project_path":[],
-        "retry_count":3,
-        "url_max_length":None,
-        "url_min_length":None,
-        "cookies":{},
-        "bad_urls":[],
-        }
+    mws_path_sort_list=[]
+    pipes_path_sort_list=[]
 
     def __init__(self):
         assert self.name
-        assert self.info
+        self.load_plugins()
 
     @async
     def parse(self,response):
         raise NotImplementedError
 
-    def load_plugins(self,mws_path_sort_list,pipes_path_sort_list):
+    def load_plugins(self):
         """加载插件  顺序很重要"""
-        self.mws=map(lambda x:load_object(x)(),mws_path_sort_list)
-        self.pipes=map(lambda x:load_object(x)(),pipes_path_sort_list)
+        self.mws=map(lambda x:load_object(x)(),self.mws_path_sort_list)
+        self.pipes=map(lambda x:load_object(x)(),self.pipes_path_sort_list)
 
-    def spider_to_pickle(self):
+    def to_pickle(self):
         return dump_pickle(self)
 
     def __repr__(self):

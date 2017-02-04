@@ -121,7 +121,8 @@ class ProducerRequest(ProducerBase):
         # assert isinstance(request,dict)
         spider_name=self.get_from_spider_name(request)
         spider_instance=self.get_spider_instance(spider_name)
-
+        print 'spider_instance %s'%spider_instance
+        print dir(spider_instance)
         # mws=spider_instance.mws # todo 待实现
         # for mw in mws:
         #     request=mw.process_request(request)

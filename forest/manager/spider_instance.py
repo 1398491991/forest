@@ -1,9 +1,11 @@
 #coding=utf8
 from ..utils.serializable import load_pickle,dump_pickle
 from ..rd import rd_conn
-import config
+from ..spider.info import SpiderInfo
+# import config
+import sys
 
-SPIDER_INSTANCE_KEY=config.SPIDER_INSTANCE_KEY
+# SPIDER_INSTANCE_KEY=config.SPIDER_INSTANCE_KEY
 
 class SpiderImportError(Exception):
     def __init__(self,name):
@@ -37,8 +39,13 @@ class SpiderInstanceManager(object):
         if hasattr(self,attr):
             return getattr(self,attr)
         try:
-            key=SPIDER_INSTANCE_KEY%{'spider_name':spider_name}
-            spider_instance=self.rd_conn.get(key)
+            info=SpiderInfo(spider_name)
+            # project_path=info.get_spider_project_path()
+            # sys.path.extend(project_path)
+            spider_instance=info.get_spider_instance()
+
+            # key=SPIDER_INSTANCE_KEY%{'spider_name':spider_name}
+            # spider_instance=self.rd_conn.get(key)
             if to_obj:
                 spider_instance=to_obj_func(spider_instance)
             if local_copy:
@@ -48,18 +55,6 @@ class SpiderInstanceManager(object):
 
         except ImportError:
             raise SpiderImportError,spider_name
-
-    def set_spider_instance(self,spider_instance):
-        """将 spider 设置到 redis 中"""
-        from ..spider import Spider
-        assert isinstance(spider_instance,Spider)
-        spider_name=spider_instance.name
-        assert spider_name
-
-        key=SPIDER_INSTANCE_KEY%{'spider_name':spider_name}
-        if self.rd_conn.exists(key):
-            raise SpiderInstanceExistError,spider_name
-        bool(self.rd_conn.set(key,spider_instance.to_pickle()))
 
 
 spiderInstanceManager=SpiderInstanceManager()
