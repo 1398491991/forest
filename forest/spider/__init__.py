@@ -6,8 +6,16 @@ from ..async import async
 class Spider(object):
     name=''
     rules=[]
-    mws_path_sort_list=[]
+    mws_path_sort_list=['forest.plugins.middlewares.dupefilter.DupeFilterMiddleware',
+                        'forest.plugins.middlewares.retry.RetryMiddleware',
+                        'forest.plugins.middlewares.headers.HeadersMiddleware',
+                        'forest.plugins.middlewares.useragent.UserAgentMiddleware',
+                        'forest.plugins.middlewares.httpproxy.HttpProxyMiddleware',
+                        'forest.plugins.middlewares.timeout.DownLoadTimeOutMiddleware',
+                        ]
+
     pipes_path_sort_list=[]
+    # 加载插件  顺序很重要
 
     def __init__(self):
         assert self.name

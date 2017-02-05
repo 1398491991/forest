@@ -11,6 +11,7 @@ from ..http.request import Request
 from ..utils.select import Selector
 import time
 import threadpool
+from ..xpython import Dict
 
 class WorkRequest(threadpool.WorkRequest):
     def extract_http_request_dict(self):
@@ -48,7 +49,11 @@ class ThreadPool(threadpool.ThreadPool):
 
 
 BASE_REQUEST_PARAMS=['method','url','headers','files',
-    'data','params','auth','cookies','hooks','json',]
+    'data','params','auth','cookies','hooks','json',
+
+    'timeout', 'allow_redirects', 'proxies',
+    'verify', 'stream', 'cert',
+]
 
 EXTEND_REQUEST_PARAMS=['from_spider','callback','project_path','replace_optional',
                  'priority','appoint_name','meta',]
@@ -84,6 +89,7 @@ class ProducerBase(object):
         # 收集到的都是 json 数据的列表
         for c in collect_result:
             c=load_json(c) # 反序列化
+            # assert isinstance(c, dict)
             self.thread_pool.putRequest(
                 WorkRequest(
                     self.process_task,
@@ -125,6 +131,10 @@ class ProducerRequest(ProducerBase):
     def process_task(self,request):
         """返回 响应  请求 或者 None """
         # assert isinstance(request,dict)
+        # 这里要转换成 Dict 方便使用
+
+        request=Dict(request)
+
         spider_name=self.get_from_spider_name(request)
         spider_instance=self.get_spider_instance(spider_name)
         mws=spider_instance.mws # todo 待实现
@@ -175,6 +185,12 @@ class ProducerItem(ProducerBase):
 
     def process_task(self,item):
         # assert isinstance(item,dict)
+
+        # 这里要转换成 Dict 方便使用
+
+        item=Dict(item)
+
+
         spider_name=self.get_from_spider_name(item)
         spider_instance=self.get_spider_instance(spider_name)
 

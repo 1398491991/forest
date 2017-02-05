@@ -1,16 +1,14 @@
 #coding=utf-8
-from forest.utils.info import SpiderInfo
+from forest.spider.info import spiderInfo
 
 class UserAgentMiddleware(object):
 
 
-    def __init__(self, settings):
-        self.settings = settings
-        self.info=SpiderInfo(self.settings['name'])
-
-    def get_user_agent(self):
-        return self.info.get_spider_unique_user_agent()
+    def get_spider_request_user_agent(self,spider_name):
+        return spiderInfo.get_spider_request_user_agent(spider_name)
 
     def process_request(self, request):
-        request.headers.setdefault('User-Agent', self.get_user_agent())
+        request.headers.setdefault('User-Agent', self.get_spider_request_user_agent(
+            request.from_spider
+        ))
         return request

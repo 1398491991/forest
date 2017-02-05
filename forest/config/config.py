@@ -15,13 +15,17 @@ SPIDER_PROJECT_PATH_KEY='forest:%(spider_name)s:spider_project_path' # set
 SPIDER_URL_MAX_LENGTH_KEY='forest:%(spider_name)s:url_max_length' # map
 SPIDER_URL_MIN_LENGTH_KEY='forest:%(spider_name)s:url_min_length' # map
 SPIDER_RETRY_COUNT_KEY='forest:%(spider_name)s:retry_count' # map
+SPIDER_REQUEST_TIMEOUT_KEY='forest:%(spider_name)s:timeout' # map
 SPIDER_REQUEST_HEADERS_KEY='forest:%(spider_name)s:request_headers' # HSET
+SPIDER_REQUEST_USER_AGENT_KEY='forest:%(spider_name)s:user_agent' # set
 
 DEFAULT_SPIDER_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en',
 }
 
+DEFAULT_SPIDER_REQUEST_TIMEOUT=180
+DEFAULT_SPIDER_REQUEST_USER_AGENT='forest'
 DEFAULT_SPIDER_URL_MAX_LENGTH=0 # 0 表示没有限制
 DEFAULT_SPIDER_URL_MIN_LENGTH=0 # 0 表示没有限制
 DEFAULT_SPIDER_RETRY_COUNT=3

@@ -32,27 +32,43 @@ class AddSpider(object):
 
     @property
     def spider_max_url_length(self):
-        return self.d['spider_max_url_length']
+        return self.d.get('spider_max_url_length')
 
     @property
     def spider_min_url_length(self):
-        return self.d['spider_min_url_length']
+        return self.d.get('spider_min_url_length')
 
     @property
     def spider_retry_count(self):
-        return self.d['spider_retry_count']
+        return self.d.get('spider_retry_count')
+
+    @property
+    def spider_request_headers(self):
+        return self.d.get('spider_request_headers')
+
+    @property
+    def spider_request_timeout(self):
+        return self.d.get('spider_request_timeout')
+
+    @property
+    def spider_request_user_agent(self):
+        return self.d.get('spider_request_user_agent')
+
 
     def add(self):
         self.spider_info.set_spider_name(self.spider_name)
         self.spider_info.set_spider_instance(self.spider_instance)
+        self.spider_info.set_spider_request_headers(self.spider_request_headers)
+        self.spider_info.set_spider_request_timeout(self.spider_request_timeout)
+        self.spider_info.set_spider_request_user_agent(self.spider_request_user_agent)
         self.spider_info.set_spider_project_path(self.spider_project_path)
         self.spider_info.set_spider_max_url_length(self.spider_max_url_length)
         self.spider_info.set_spider_min_url_length(self.spider_min_url_length)
-        self.spider_info.set_spider_retry_count(self.spider_retry_count)
+        self.spider_info.set_spider_request_retry_count(self.spider_retry_count)
 
     def test_load(self):
         """测试是否能够正确反序列化"""
-        sys.path.extend(list(self.spider_project_path))
+        sys.path = list(set(sys.path+list(self.spider_project_path)))
         return load_pickle(self.spider_instance)
 
     def commit(self,raise_on_error=True):

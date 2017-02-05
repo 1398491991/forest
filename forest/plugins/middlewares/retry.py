@@ -1,13 +1,12 @@
 #coding=utf-8
-import warnings
+from forest.spider.info import spiderInfo
 
 class RetryMiddleware(object):
-    def __init__(self,settings):
-        self.settings=settings
 
-    def get_retry_max_count(self):
+
+    def get_spider_request_retry_count(self,spider_name):
         """获取最大重试次数"""
-        return self.settings['retry_max_count']
+        return spiderInfo.get_spider_request_retry_count(spider_name)
 
 
     def process_request(self,request):
@@ -17,8 +16,7 @@ class RetryMiddleware(object):
             return request
         # log
         request.retry_count+=1
-        retry_max_count=self.get_retry_max_count()
+        retry_max_count=self.get_spider_request_retry_count(request.from_spider)
         if request.retry_count>retry_max_count:
-            warnings.warn('%s retry_count > %s'%(request,retry_max_count))
             return None
         return request

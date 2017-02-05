@@ -3,8 +3,10 @@ import requests
 from ..utils.serializable import dump_json
 
 class Request(requests.Request):
-    def __init__(self,url,method=None, headers=None, files=None,
+    def __init__(self,url,method='GET', headers=None, files=None,
         data=None, params=None, auth=None, cookies=None, hooks=None, json=None,
+                 timeout=None,allow_redirects=None,proxies=None,
+                 verify=None,stream=False,cert=None,
                  # ext
                  from_spider=None,project_path=None,callback='parse',
                  priority=0,appoint_name=None,meta=None,
@@ -12,6 +14,13 @@ class Request(requests.Request):
                  replace_optional=None):
         super(Request,self).__init__(method, url, headers, files,
         data, params, auth, cookies, hooks, json)
+
+        self.timeout=timeout
+        self.allow_redirects=allow_redirects
+        self.proxies=proxies
+        self.verify=verify
+        self.stream=stream
+        self.cert=cert
 
         self.from_spider=from_spider
         assert isinstance(priority,int)

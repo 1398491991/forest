@@ -1,11 +1,10 @@
 #coding=utf-8
 
-from forest.utils.info import SpiderInfo
-class HttpProxyMiddleware(object):
+from forest.spider.info import spiderInfo
 
-    def __init__(self,settings):
-        self.settings=settings
-        self.info=SpiderInfo(self.settings['name'])
+class HttpProxyMiddleware(object):
+    """暂时的"""
+
 
     def process_request(self, request):
         return request
