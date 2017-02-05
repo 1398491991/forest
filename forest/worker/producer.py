@@ -2,6 +2,7 @@
 from scheduler import collectRequestScheduler,collectItemScheduler
 from ..utils.serializable import load_json
 from ..manager.spider_instance import spiderInstanceManager
+from ..manager.slave_info import slaveInfoManager
 # import config
 import requests
 from ..http.response import Response
@@ -66,8 +67,13 @@ class ProducerBase(object):
 
     def task_null_action(self):
         # 当收集结果为 空 list 时候 进行的动作
-        print 'sleep'
-        time.sleep(5)
+        print 'task null'
+        time.sleep(
+            self.get_task_null_sleep_time()
+        )
+
+    def get_task_null_sleep_time(self):
+        return slaveInfoManager.get_task_null_action_sleep_time()
 
 
     def collect_task(self):
@@ -121,14 +127,12 @@ class ProducerRequest(ProducerBase):
         # assert isinstance(request,dict)
         spider_name=self.get_from_spider_name(request)
         spider_instance=self.get_spider_instance(spider_name)
-        print 'spider_instance %s'%spider_instance
-        print dir(spider_instance)
-        # mws=spider_instance.mws # todo 待实现
-        # for mw in mws:
-        #     request=mw.process_request(request)
-        #     if not request:
+        mws=spider_instance.mws # todo 待实现
+        for mw in mws:
+            request=mw.process_request(request)
+            if not request:
                 # 返回 None 表示放弃这个请求
-                # break
+                break
         if request:
             return self.download_request(request) # download
 
@@ -157,9 +161,9 @@ class ProducerRequest(ProducerBase):
             return Request(**request)
         else:
             map(lambda x:setattr(response,x,request[x]),EXTEND_REQUEST_PARAMS)
-            return self.bind(response,request)
+            return self.bind_select(response,request)
 
-    def bind(self,response,request):
+    def bind_select(self,response,request):
         """绑定对象到响应 request 也许解码会用到"""
         select=Selector(response.text,base_url=response.url)
         return Response(response,select)

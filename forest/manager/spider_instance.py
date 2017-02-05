@@ -28,12 +28,7 @@ class SpiderInstanceManager(object):
     def rd_conn(self):
         return rd_conn
 
-    def get_spider_instance(self,spider_name,to_obj=True,
-                            local_copy=True):
-        def to_obj_func(spider_instance):
-            if isinstance(spider_instance,basestring):
-                return load_pickle(spider_instance)
-            return spider_instance
+    def get_spider_instance(self,spider_name,):
 
         attr='spider_%s'%spider_name
         if hasattr(self,attr):
@@ -46,10 +41,8 @@ class SpiderInstanceManager(object):
 
             # key=SPIDER_INSTANCE_KEY%{'spider_name':spider_name}
             # spider_instance=self.rd_conn.get(key)
-            if to_obj:
-                spider_instance=to_obj_func(spider_instance)
-            if local_copy:
-                setattr(self,attr,to_obj_func(spider_instance))
+            spider_instance=load_pickle(spider_instance)
+            setattr(self,attr,spider_instance)
 
             return spider_instance
 

@@ -15,6 +15,9 @@ DEFAULT_PARALLEL_JOB_ITEM_SIZE=config.DEFAULT_PARALLEL_JOB_ITEM_SIZE
 JOB_REQUEST_PID_KEY=config.JOB_REQUEST_PID_KEY
 JOB_ITEM_PID_KEY=config.JOB_ITEM_PID_KEY
 
+DEFAULT_TASK_NULL_ACTION_SLEEP_TIME=config.DEFAULT_TASK_NULL_ACTION_SLEEP_TIME
+TASK_NULL_ACTION_SLEEP_TIME_KEY=config.TASK_NULL_ACTION_SLEEP_TIME_KEY
+
 
 LOCAL_HOST_NAME=config.LOCAL_HOST_NAME
 
@@ -29,16 +32,20 @@ class SlaveInfoManager(object):
     def rd_conn(self):
         return rd_conn
 
+    @property
+    def hostname_map(self):
+        return {"hostname": self.hostname}
+
 
     def get_parallel_producer_request_size(self):
-        c=self.rd_conn.get(PARALLEL_PRODUCER_REQUEST_SIZE_KEY%{"hostname":self.hostname})
+        c=self.rd_conn.get(PARALLEL_PRODUCER_REQUEST_SIZE_KEY%self.hostname_map)
         try:
             return int(c)
         except TypeError:
             return DEFAULT_PARALLEL_PRODUCER_REQUEST_SIZE
 
     def get_parallel_producer_item_size(self):
-        c=self.rd_conn.get(PARALLEL_PRODUCER_ITEM_SIZE_KEY%{"hostname":self.hostname})
+        c=self.rd_conn.get(PARALLEL_PRODUCER_ITEM_SIZE_KEY%self.hostname_map)
         try:
             return int(c)
         except TypeError:
@@ -47,17 +54,20 @@ class SlaveInfoManager(object):
     def set_parallel_producer_request_size(self,c):
         assert isinstance(c,int) and c>0
 
-        return self.rd_conn.set(PARALLEL_PRODUCER_ITEM_SIZE_KEY%{"hostname":self.rd_conn},c)
+        return self.rd_conn.set(PARALLEL_PRODUCER_ITEM_SIZE_KEY%self.hostname_map,c)
 
 
     def set_parallel_producer_item_size(self,c):
         assert isinstance(c,int) and c>0
 
-        return self.rd_conn.set(PARALLEL_PRODUCER_REQUEST_SIZE_KEY%{"hostname":self.hostname},c)
+        return self.rd_conn.set(PARALLEL_PRODUCER_REQUEST_SIZE_KEY%self.hostname_map,c)
 
+    def set_task_null_action_sleep_time(self,t=DEFAULT_TASK_NULL_ACTION_SLEEP_TIME):
+        assert isinstance(t,(int,float)) and t>0
+        return self.rd_conn.set(TASK_NULL_ACTION_SLEEP_TIME_KEY,t)
 
     def get_parallel_job_request_size(self):
-        c=self.rd_conn.get(PARALLEL_JOB_REQUEST_SIZE_KEY%{"hostname":self.hostname})
+        c=self.rd_conn.get(PARALLEL_JOB_REQUEST_SIZE_KEY%self.hostname_map)
         try:
             return int(c)
         except TypeError:
@@ -65,7 +75,7 @@ class SlaveInfoManager(object):
 
 
     def get_parallel_job_item_size(self):
-        c=self.rd_conn.get(PARALLEL_JOB_ITEM_SIZE_KEY%{"hostname":self.hostname})
+        c=self.rd_conn.get(PARALLEL_JOB_ITEM_SIZE_KEY%self.hostname_map)
         try:
             return int(c)
         except TypeError:
@@ -73,14 +83,21 @@ class SlaveInfoManager(object):
 
 
     def get_parallel_job_item_pids(self):
-        return self.rd_conn.smembers(JOB_ITEM_PID_KEY%{"hostname":self.hostname})
+        return self.rd_conn.smembers(JOB_ITEM_PID_KEY%self.hostname_map)
 
 
     def get_parallel_job_request_pids(self):
-        return self.rd_conn.smembers(JOB_REQUEST_PID_KEY%{"hostname":self.hostname})
+        return self.rd_conn.smembers(JOB_REQUEST_PID_KEY%self.hostname_map)
 
     def re_hostname(self,hostname):
         self.hostname=hostname
+
+    def get_task_null_action_sleep_time(self):
+        res=self.rd_conn.get(TASK_NULL_ACTION_SLEEP_TIME_KEY)
+        try:
+            return float(res)
+        except TypeError:
+            return DEFAULT_TASK_NULL_ACTION_SLEEP_TIME
 
 
 

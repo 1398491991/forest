@@ -1,22 +1,20 @@
 #coding=utf-8
-from forest.utils.info import SpiderInfo
+from forest.rd import rd_conn
+import config
+
+SPIDER_REQUEST_HEADERS_KEY=config.SPIDER_REQUEST_HEADERS_KEY  # HSET
+DEFAULT_SPIDER_REQUEST_HEADERS =config.DEFAULT_SPIDER_REQUEST_HEADERS
 
 class HeadersMiddleware(object):
     """设置一个默认的请求头部 借鉴scrapy"""
-    def __init__(self,settings):
-        self.settings=settings
-        self.info=SpiderInfo(self.settings['name'])
 
-    def get_default_headers(self):
-        return self.info.get_unique_spider_header()
 
+    def get_spider_request_headers(self,spider_name):
+        res=rd_conn.hgetall(SPIDER_REQUEST_HEADERS_KEY % {'spider_name':spider_name})
+        return res or DEFAULT_SPIDER_REQUEST_HEADERS
 
     def process_request(self,request):
         # 请求的实例 设置表头
         if not request.headers:# 没有设置头
-            request.headers=self.get_default_headers()
+            request.headers=self.get_spider_request_headers(request.from_spider)
         return request
-
-    @classmethod
-    def from_settings(cls,settings):
-        return cls(settings)

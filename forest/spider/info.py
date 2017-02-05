@@ -16,6 +16,10 @@ DEFAULT_SPIDER_URL_MAX_LENGTH=config.DEFAULT_SPIDER_URL_MAX_LENGTH # 0 表示没
 DEFAULT_SPIDER_URL_MIN_LENGTH=config.DEFAULT_SPIDER_URL_MIN_LENGTH # 0 表示没有限制
 DEFAULT_SPIDER_RETRY_COUNT=config.DEFAULT_SPIDER_RETRY_COUNT
 
+SPIDER_REQUEST_HEADERS_KEY=config.SPIDER_REQUEST_HEADERS_KEY  # HSET
+DEFAULT_SPIDER_REQUEST_HEADERS =config.DEFAULT_SPIDER_REQUEST_HEADERS
+
+
 def key_exist(key, raise_error=True, ):
     assert isinstance(raise_error, bool)
     res = rd_conn.exists(key)
@@ -68,7 +72,7 @@ class SpiderInfo(object):
 
 
 
-    def set_spider_retry_count(self,retry_count,**kwargs):
+    def set_spider_retry_count(self,retry_count=DEFAULT_SPIDER_RETRY_COUNT,**kwargs):
         assert isinstance(retry_count, int) and retry_count > 0
         return self._set(self.rd_pipe.set,
                          SPIDER_RETRY_COUNT_KEY%self.spider_name_map,
@@ -76,7 +80,7 @@ class SpiderInfo(object):
 
 
 
-    def set_spider_max_url_length(self,length,**kwargs):
+    def set_spider_max_url_length(self,length=DEFAULT_SPIDER_URL_MAX_LENGTH,**kwargs):
         # 0 表示没有限制
         assert isinstance(length,int) and length >=0
         return self._set(self.rd_pipe.set,
@@ -84,7 +88,7 @@ class SpiderInfo(object):
                          length,** kwargs)
 
 
-    def set_spider_min_url_length(self,length,**kwargs):
+    def set_spider_min_url_length(self,length=DEFAULT_SPIDER_URL_MIN_LENGTH,**kwargs):
         # 0 表示没有限制
         assert isinstance(length, int) and length >=0
         return self._set(self.rd_pipe.set,
@@ -97,6 +101,14 @@ class SpiderInfo(object):
         key=SPIDER_PROJECT_PATH_KEY%self.spider_name_map
         key_exist(key,raise_error)
         return self.rd_pipe.sadd(key,*path)
+
+
+    def set_spider_request_headers(self,headers=DEFAULT_SPIDER_REQUEST_HEADERS,**kwargs):
+        assert isinstance(headers,dict)
+        return self._set(self.rd_pipe.hmset,
+                         SPIDER_REQUEST_HEADERS_KEY % self.spider_name_map,
+                         headers, **kwargs)
+
 
 
     @_key_exist_decorator(True)
@@ -127,7 +139,7 @@ class SpiderInfo(object):
         except TypeError:
             return DEFAULT_SPIDER_URL_MAX_LENGTH
 
-    def get_spider_min_url_length(self,length):
+    def get_spider_min_url_length(self):
         try:
             return self.rd_conn.get(SPIDER_URL_MIN_LENGTH_KEY%self.spider_name_map)
         except TypeError:
@@ -135,6 +147,13 @@ class SpiderInfo(object):
 
     def get_spider_project_path(self):
         return self.rd_conn.smembers(SPIDER_PROJECT_PATH_KEY%self.spider_name_map)
+
+
+    def get_spider_request_headers(self):
+        res=self.rd_conn.hgetall(SPIDER_REQUEST_HEADERS_KEY % self.spider_name_map)
+        return res or DEFAULT_SPIDER_REQUEST_HEADERS
+
+
 
     def rm(self):
         pass
