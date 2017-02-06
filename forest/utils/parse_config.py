@@ -17,8 +17,8 @@ class CustomConfigNotExistException(Exception):
 class ParseConfig(object):
 
     # default_config_path=r'd:\forest\forest\config\config.ini'
-    default_config_path='/mnt/hgfs/project/forest/forest/config/config.ini'
-    # default_config_path='/mnt/hgfs/forest/forest/config/config.ini'
+    # default_config_path='/mnt/hgfs/project/forest/forest/config/config.ini'
+    default_config_path='/mnt/hgfs/forest/forest/config/config.ini'
     assert os.path.isfile(default_config_path),'default_config_path "%s"not exist'%default_config_path
 
     def __init__(self):

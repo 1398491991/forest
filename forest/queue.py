@@ -113,8 +113,8 @@ class StackQueue(QueueBase):
 
         return data
 
-from rd import rd_conn,get_rd_conn
+from rd import rd_conn#,get_rd_conn
 
-stackQueue=StackQueue(get_rd_conn())
-priorityQueue=PriorityQueue(get_rd_conn())
-plainQueue=PlainQueue(get_rd_conn())
+stackQueue=StackQueue(rd_conn)
+priorityQueue=PriorityQueue(rd_conn)
+plainQueue=PlainQueue(rd_conn)

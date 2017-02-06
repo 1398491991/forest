@@ -110,23 +110,30 @@ class CollectBaseScheduler(object):
         count=count or self.get_parallel_producer_count()
         # assert count
         collect=[]
-        collect+=self.collect_appoint_request(count)
-        collect+=self.collect_public_priority_request(count-len(collect))
-        collect+=self.collect_public_request(count-len(collect))
+        obj_cs=[self.collect_appoint_obj,self.collect_public_priority_obj,self.collect_public_obj]
+        for o in obj_cs:
+            count-=len(collect)
+            if count<=0:
+                break
+            collect+=o(count)
         return collect
 
+        # collect+=self.collect_appoint_obj(count)
+        # collect+=self.collect_public_priority_obj(count-len(collect))
+        # collect+=self.collect_public_obj(count-len(collect))
+        # return collect
     def handover_collect(self):
         return self._collect(plainQueue,self.APPOINT_QUEUE_KEY%{'hostname':self.hostname},-1)
 
-    def collect_appoint_request(self,count):
+    def collect_appoint_obj(self,count):
         """收集委托的 请求"""
         return self._collect(plainQueue,self.APPOINT_QUEUE_KEY%{'hostname':self.hostname},
                              count)
 
-    def collect_public_priority_request(self,count):
+    def collect_public_priority_obj(self,count):
         return self._collect(priorityQueue,self.PUBLIC_PRIORITY_QUEUE_KEY,count)
 
-    def collect_public_request(self,count):
+    def collect_public_obj(self,count):
         return self._collect(plainQueue,self.PUBLIC_QUEUE_KEY,count)
 
 

@@ -86,7 +86,7 @@ class ProducerBase(object):
 
 
     def collect_task(self):
-        collect_result=self.collectScheduler.collect() # 收集请求进行处理
+        collect_result=self.collectScheduler.collect() # 收集task进行处理
         return self.make_task(collect_result) if collect_result else self.task_null_action()
 
     def make_task(self,collect_result):
