@@ -11,23 +11,23 @@ from ..http.request import Request
 from ..utils.select import Selector
 import time
 import threadpool
-from ..xpython import Dict
+from ..item import Item
 
 class WorkRequest(threadpool.WorkRequest):
-    def extract_http_request_dict(self):
+    def extract_http_request(self):
         return self.args[0]
 
 
 class ThreadPool(threadpool.ThreadPool):
-    def poll(self, block=False):
+    def poll(self, block=True):
         """Process any new results in the queue."""
         while True:
             # still results pending?
-            if not self.workRequests:
-                print 'NoResultsPending'
-            # are there still workers to process remaining requests?
-            elif block and not self.workers:
-                print  'NoWorkersAvailable'
+            # if not self.workRequests:
+            #     print 'NoResultsPending'
+            # # are there still workers to process remaining requests?
+            # elif block and not self.workers:
+            #     print  'NoWorkersAvailable'
             try:
                 # get back next results
                 request, result = self._results_queue.get(block=block)
@@ -40,10 +40,10 @@ class ThreadPool(threadpool.ThreadPool):
                     request.callback(request, result)
                 del self.workRequests[request.requestID]
             except Exception as e:
-                print 'error %s'%e
+                print 'thread loop error %s'%e
                 # break
 
-    def loop(self, block=False):
+    def loop(self, block=True):
         return self.poll(block)
 
 
@@ -61,6 +61,7 @@ EXTEND_REQUEST_PARAMS=['from_spider','callback','project_path','replace_optional
 
 class ProducerBase(object):
     collectScheduler=None
+    obj_class=None
 
     def __init__(self,thread_pool_size):
         assert isinstance(thread_pool_size,int)
@@ -68,7 +69,10 @@ class ProducerBase(object):
 
     def loop(self):
         while 1:
-            self.collect_task()
+            try:
+                self.collect_task()
+            except Exception as e:
+                print 'producer loop error %s'%e
 
     def task_null_action(self):
         # 当收集结果为 空 list 时候 进行的动作
@@ -93,7 +97,7 @@ class ProducerBase(object):
             self.thread_pool.putRequest(
                 WorkRequest(
                     self.process_task,
-                    (c,), {},
+                    (self.obj_class(**c),), {},
                     callback=self.succ_callback,
                     exc_callback=self.exce_callback
                 )
@@ -106,7 +110,7 @@ class ProducerBase(object):
 
     def get_from_spider_name(self,obj): # 快捷方式
         """获取来自爬虫实例名称"""
-        name=obj['from_spider']
+        name=obj.from_spider
         if not name:
             raise Exception,'obj from_spider param is None'
         return name
@@ -126,15 +130,12 @@ class ProducerBase(object):
 class ProducerRequest(ProducerBase):
 
     collectScheduler = collectRequestScheduler
-
+    obj_class = Request
 
     def process_task(self,request):
         """返回 响应  请求 或者 None """
-        # assert isinstance(request,dict)
-        # 这里要转换成 Dict 方便使用
-
-        request=Dict(request)
-
+        # assert isinstance(request,Request)
+        # request=Request(**request) # 重新实例化
         spider_name=self.get_from_spider_name(request)
         spider_instance=self.get_spider_instance(spider_name)
         mws=spider_instance.mws # todo 待实现
@@ -150,15 +151,11 @@ class ProducerRequest(ProducerBase):
     def succ_callback(self,work_request,result):
         # 回调请求
         # assert isinstance(work_request,WorkRequest)
-        request=work_request.extract_http_request_dict()
-        if isinstance(result,Response):
-            spider_name=request['from_spider']
-            spider_instance=spiderInstanceManager.get_spider_instance(spider_name,)
-            return getattr(spider_instance,request['callback'])(result)
-        if isinstance(result,Request):# 原路返回 再次分发
-            return result
-
-        return None # 什么都不是
+        if result:
+            request=work_request.extract_http_request()
+            spider_name=request.from_spider
+            spider_instance=self.get_spider_instance(spider_name)
+            return getattr(spider_instance,request.callback)(result)
 
 
 
@@ -168,7 +165,7 @@ class ProducerRequest(ProducerBase):
         try:
             response = requests.request(**kwargs)
         except:
-            return Request(**request)
+            return request
         else:
             map(lambda x:setattr(response,x,request[x]),EXTEND_REQUEST_PARAMS)
             return self.bind_select(response,request)
@@ -182,15 +179,11 @@ class ProducerRequest(ProducerBase):
 class ProducerItem(ProducerBase):
     """消费 item 请求"""
     collectScheduler = collectItemScheduler
+    obj_class = Item
 
     def process_task(self,item):
-        # assert isinstance(item,dict)
-
+        # assert isinstance(item,Dict)
         # 这里要转换成 Dict 方便使用
-
-        item=Dict(item)
-
-
         spider_name=self.get_from_spider_name(item)
         spider_instance=self.get_spider_instance(spider_name)
 

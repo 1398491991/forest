@@ -10,5 +10,11 @@ class testSpider(Spider):
 
     @async
     def parse(self,response):
-        return [Request(url='http://127.0.0.1:5000/123'),
-                Request(url='http://127.0.0.1:5000/123',appoint_name=host_name,priority=10)]*2
+        try:
+            url=int(response.url.split('/')[-1])+1
+        except Exception as e:
+            print e
+            url=1
+        # url=
+        return [Request(url='http://127.0.0.1:5000/%s'%url),]
+                # Request(url='http://127.0.0.1:5000/123',appoint_name=host_name,priority=10)]

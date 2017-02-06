@@ -9,7 +9,7 @@ class Request(requests.Request):
                  verify=None,stream=False,cert=None,
                  # ext
                  from_spider=None,project_path=None,callback='parse',
-                 priority=0,appoint_name=None,meta=None,
+                 priority=0,appoint_name=None,meta=None,retry_count=0,
                  # replace
                  replace_optional=None):
         super(Request,self).__init__(method, url, headers, files,
@@ -30,12 +30,16 @@ class Request(requests.Request):
         self.callback=callback
         self.project_path=project_path or []
         self.replace_optional=replace_optional or {}
+        self.retry_count=retry_count
 
     def to_json(self):
         return dump_json(self.to_dict())
 
     def to_dict(self):
         return self.__dict__
+
+    def __getitem__(self, item):
+        return self.__getattribute__(item)
 
     def __repr__(self):
         return '<Request [%s] [%s]>' % (self.method,self.url)

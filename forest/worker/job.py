@@ -20,16 +20,15 @@ class JobBaseProcess(multiprocessing.Process):
     producerClass=None
 
     def run(self):
-        # self.pid_to_redis()
         producerObj=self.producerClass(
-            self.get_producer_pool_size()
+            self.get_producer_pool_count()
         )
-        t=threading.Thread(target=producerObj.thread_pool.poll,args=(True,))
+        t=threading.Thread(target=producerObj.thread_pool.poll,)
         t.start()
         producerObj.loop()
-        # t.join()
 
-    def get_producer_pool_size(self):
+
+    def get_producer_pool_count(self):
         """ 这是一个快捷方式  关于 slave 即 单次最大并发量"""
         raise NotImplementedError
 
@@ -38,13 +37,13 @@ class JobItemProcess(JobBaseProcess):
     LOCAL_JOB_PID_KEY=LOCAL_JOB_ITEM_PID_KEY
     producerClass=ProducerItem
 
-    def get_producer_pool_size(self):
-        return slaveInfoManager.get_parallel_producer_item_size()
+    def get_producer_pool_count(self):
+        return slaveInfoManager.get_parallel_producer_item_count()
 
 
 class JobRequestProcess(JobBaseProcess):
     LOCAL_JOB_PID_KEY=LOCAL_JOB_REQUEST_PID_KEY
     producerClass=ProducerRequest
 
-    def get_producer_pool_size(self):
-        return slaveInfoManager.get_parallel_producer_request_size()
+    def get_producer_pool_count(self):
+        return slaveInfoManager.get_parallel_producer_request_count()

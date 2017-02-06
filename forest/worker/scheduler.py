@@ -22,24 +22,24 @@ class EnqueueBaseScheduler(object):
     PUBLIC_QUEUE_KEY=''
     APPOINT_QUEUE_KEY=''
 
-    def enqueue(self,obj,handover=False,handover_host_name=None):
+    def enqueue(self,obj):
         """如果 handover 为 True 则不会进入 local 委托队列 默认委托本地队列"""
         # 入队
-        if handover:# 委托为True
-            # assert handover_host_name # 当 handover 为 真 那么 handover_host_name 一定要指定
-            if obj.appoint_name==handover_host_name:# 委托的队列刚好是这个
-                return self.enqueue_to_public_priority(obj) # 进入优先级的队列
-            else:#委托名称不对应 可以入队列
-                return self.enqueue_to_appoint(obj)
-        elif obj.priority:# 优先级委托
+        if obj.appoint_name and obj.appoint_name in slaveInfoManager.get_all_slave_names():
+            # 委托成功 slave 存在
+            return self.enqueue_to_appoint(obj)
+
+        elif obj.priority:
+            # 优先级委托
             return self.enqueue_to_public_priority(obj)
+
         else:
             return self.enqueue_to_public(obj) # 平凡的
 
     def enqueue_to_appoint(self,obj):
         # 最高待遇的
         res=plainQueue.push(self.APPOINT_QUEUE_KEY%{'hostname':obj.appoint_name},
-                            obj.to_json(),x=True)
+                            obj.to_json())
         if not res:#入队失败
             return self.enqueue_to_public_priority(obj) # 进入优先级队列
         return True
@@ -52,13 +52,12 @@ class EnqueueBaseScheduler(object):
         return True
 
     def enqueue_to_public_priority(self,obj):
-        if obj.priority:
-            priority=obj.priority*-1
-            res=priorityQueue.push(self.PUBLIC_PRIORITY_QUEUE_KEY,
-                                   obj.to_json(),priority=priority)
-            if not res:
-                return self.enqueue_to_public(obj)
-            return True
+        priority=obj.priority*-1
+        res=priorityQueue.push(self.PUBLIC_PRIORITY_QUEUE_KEY,
+                               obj.to_json(),priority=priority)
+        if not res:
+            return self.enqueue_to_public(obj)
+        return True
 
 
 class EnqueueRequestScheduler(EnqueueBaseScheduler):
@@ -108,7 +107,7 @@ class CollectBaseScheduler(object):
         return collect
 
     def collect(self,count=None):
-        count=count or self.get_parallel_producer_size()
+        count=count or self.get_parallel_producer_count()
         # assert count
         collect=[]
         collect+=self.collect_appoint_request(count)
@@ -131,7 +130,7 @@ class CollectBaseScheduler(object):
         return self._collect(plainQueue,self.PUBLIC_QUEUE_KEY,count)
 
 
-    def get_parallel_producer_size(self):
+    def get_parallel_producer_count(self):
         raise NotImplementedError
 
 
@@ -141,9 +140,9 @@ class CollectRequestScheduler(CollectBaseScheduler):
     PUBLIC_QUEUE_KEY=PUBLIC_QUEUE_REQUEST_KEY
     APPOINT_QUEUE_KEY=APPOINT_QUEUE_REQUEST_KEY
 
-    def get_parallel_producer_size(self):
+    def get_parallel_producer_count(self):
 
-        return slaveInfoManager.get_parallel_producer_request_size()
+        return slaveInfoManager.get_parallel_producer_request_count()
 
 
 
@@ -152,8 +151,8 @@ class CollectItemScheduler(CollectBaseScheduler):
     PUBLIC_QUEUE_KEY=PUBLIC_QUEUE_ITEM_KEY
     APPOINT_QUEUE_KEY=APPOINT_QUEUE_ITEM_KEY
 
-    def get_parallel_producer_size(self):
-        return slaveInfoManager.get_parallel_producer_item_size()
+    def get_parallel_producer_count(self):
+        return slaveInfoManager.get_parallel_producer_item_count()
 
 
 enqueueRequestScheduler=EnqueueRequestScheduler()
@@ -166,15 +165,13 @@ collectRequestScheduler=CollectRequestScheduler()
 
 class JobHandoverScheduler(object):
     """工作移交"""
-    def job_handover(self,handover_host_name):
+    def job_handover(self):
         # 也许需要 事务处理
-        map(lambda x:
-            enqueueRequestScheduler.enqueue(x,True,handover_host_name),
+        map(enqueueRequestScheduler.enqueue,
             collectRequestScheduler.handover_collect()
             )
 
-        map(lambda x:
-            enqueueItemScheduler.enqueue(x,True,handover_host_name),
+        map(enqueueItemScheduler.enqueue,
             collectItemScheduler.handover_collect()
             )
 
