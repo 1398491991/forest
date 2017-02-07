@@ -4,6 +4,7 @@ from http.request import Request
 from http.response import Response
 from item import Item
 import consumer
+from spider.info import getSpiderInfo
 
 
 
@@ -27,6 +28,7 @@ def async(func):
             if isinstance(obj,(Request,Item)):
                 if not obj.from_spider:
                     obj.from_spider=self.name
-                return consumer.consumer.process.delay(consumer.consumer,obj)
+                if obj.from_spider in getSpiderInfo.get_all_spider_name():
+                    consumer.consumer.process.delay(consumer.consumer,obj)
 
     return decorator

@@ -5,7 +5,6 @@ from ..async import async
 
 class Spider(object):
     name=''
-    rules=[]
     mws_path_sort_list=['forest.plugins.middlewares.dupefilter.DupeFilterMiddleware',
                         'forest.plugins.middlewares.retry.RetryMiddleware',
                         'forest.plugins.middlewares.headers.HeadersMiddleware',
@@ -38,3 +37,12 @@ class Spider(object):
         return '<Spider [%s]>' % (self.name)
 
     __str__=__repr__
+
+import scrapy
+class RulesSpider(Spider):
+
+    rules=[]
+
+
+    def parse(self,response):
+        pass

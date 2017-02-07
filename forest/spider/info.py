@@ -223,6 +223,10 @@ class GetSpiderInfo(BaseSpiderInfo):
         return res
 
 
+    def get_all_spider_name(self):
+        return self.rd_server.smembers(SPIDER_NAME_KEY)
+
+
 class RemoveSpiderInfo(BaseSpiderInfo):
 
 
