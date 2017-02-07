@@ -1,6 +1,29 @@
 #coding=utf-8
-from importlib import import_module
 
+from importlib import import_module
+import six
+from forest.item import Item
+
+
+_ITERABLE_SINGLE_VALUES = dict, Item, six.text_type, bytes
+
+
+def rel_has_nofollow(rel):
+    """Return True if link rel attribute has nofollow type"""
+    return True if rel is not None and 'nofollow' in rel.split() else False
+
+def arg_to_iter(arg):
+    """Convert an argument to an iterable. The argument can be a None, single
+    value, or an iterable.
+
+    Exception: if arg is a dict, [arg] will be returned
+    """
+    if arg is None:
+        return []
+    elif not isinstance(arg, _ITERABLE_SINGLE_VALUES) and hasattr(arg, '__iter__'):
+        return arg
+    else:
+        return [arg]
 
 def load_object(path):
     """Load an object given its absolute object path, and return it.
