@@ -1,7 +1,7 @@
 #coding=utf-8
 
-# REDIS_CONFIG={}
-REDIS_CONFIG={'host':'10.0.0.12'}
+REDIS_CONFIG={}
+# REDIS_CONFIG={'host':'10.0.0.12'}
 
 DEFAULT_SSH_LOG_CONFIG={'filename':'ssh.log','level':'DEBUG'}
 

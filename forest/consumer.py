@@ -7,6 +7,7 @@ from forest.utils.select import Selector
 from forest.item import Item
 from forest.manager.spider_instance import spiderInstanceManager
 import requests
+import celery_config
 
 BASE_REQUEST_PARAMS=['method','url','headers','files',
     'data','params','auth','cookies','hooks','json',
@@ -19,23 +20,21 @@ EXTEND_REQUEST_PARAMS=['from_spider','encoding','callback','replace_optional',
                  'priority','async_optional','meta',]
 
 
-app=Celery(__name__,broker='redis://10.0.0.12:6379/0')
+app=Celery()
+app.config_from_object(celery_config)
 
-class Consumer(object):
 
-    @app.task
-    def process(self,obj):
-        if isinstance(obj,Request):
-            return self.process_request(obj)
-
-        if isinstance(obj,Item):
-            return self.process_item(obj)
-
+class ConsumerBase(object):
 
     def get_spider_instance(self,obj):
         return spiderInstanceManager.get_spider_instance(obj.from_spider)
 
-    def process_request(self,request):
+    def process(self, obj):
+        raise NotImplementedError
+
+class ConsumerRequest(ConsumerBase):
+
+    def process(self, request):
         spider_instance=self.get_spider_instance(request)
         mws=spider_instance.mws
         for mw in mws:
@@ -44,9 +43,9 @@ class Consumer(object):
                 # 返回 None 表示放弃这个请求
                 return
 
-        res=self.download_request(request) # download
+        response_or_request=self.download_request(request) # download
 
-        return self.callback(res)
+        return self.callback(response_or_request)
 
 
     def download_request(self,request):
@@ -54,7 +53,8 @@ class Consumer(object):
         kwargs = {k:request[k] for k in BASE_REQUEST_PARAMS}
         try:
             response = requests.request(**kwargs)
-        except:
+        except Exception as e:
+            print 'down load error %s'%e
             return request
         else:
             map(lambda x:setattr(response,x,request[x]),EXTEND_REQUEST_PARAMS)
@@ -68,15 +68,14 @@ class Consumer(object):
 
 
     def callback(self,obj):
-        # 回调请求
-        # assert isinstance(work_request,WorkRequest)
+        # 回调
         spider_instance=self.get_spider_instance(obj)
-        print 213414145
         return getattr(spider_instance,obj.callback)(obj)
 
 
+class ConsumerItem(ConsumerBase):
 
-    def process_item(self,item):
+    def process(self,item):
         spider_instance=self.get_spider_instance(item)
         pipe=spider_instance.pipe
         for pip in pipe:
@@ -85,4 +84,17 @@ class Consumer(object):
                 # 返回 None 表示处理完毕
                 break
 
-consumer=Consumer()
+consumerItem = ConsumerItem()
+consumerRequest = ConsumerRequest()
+
+@app.task
+def task_route(obj):
+    """分发任务"""
+    print obj
+    return obj
+    # if isinstance(obj,Request):
+    #     return consumerRequest.process(obj)
+
+    # if isinstance(obj,Item):
+    #     return consumerItem.process(obj)
+
