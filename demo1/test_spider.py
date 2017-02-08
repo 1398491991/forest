@@ -19,4 +19,4 @@ class testSpider(Spider):
         # return [Request(url='http://127.0.0.1:5000/%s'%url),]
         return [#Request(url='http://127.0.0.1:5000/%s'%url),
             #Request(url='http://127.0.0.1:5000/5555'),
-                Request(url='http://127.0.0.1:5000/123',appoint_name=host_name,priority=10)]*2
+                Request(url='http://127.0.0.1:5000/123',priority=10)]*2

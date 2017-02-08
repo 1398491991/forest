@@ -25,11 +25,15 @@ class Response(object):
 
         return self.select.re(regex)
 
-    def __getattr__(self, item):
+    def __getattribute__(self, item):
+        if hasattr(self, item):
+            return getattr(self,item)
+
         try:
             return getattr(self.response,item)
         except AttributeError:
             return getattr(self.select,item)
+
 
     def __getitem__(self, item):
         if isinstance(item,six.string_types):

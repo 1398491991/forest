@@ -8,10 +8,7 @@ class Request(requests.Request):
                  timeout=None,allow_redirects=None,proxies=None,
                  verify=None,stream=False,cert=None,
                  # ext
-                 from_spider=None,project_path=None,callback='parse',
-                 priority=0,appoint_name=None,meta=None,retry_count=0,
-                 # replace
-                 replace_optional=None):
+                 **kwargs):
         super(Request,self).__init__(method, url, headers, files,
         data, params, auth, cookies, hooks, json)
 
@@ -22,15 +19,16 @@ class Request(requests.Request):
         self.stream=stream
         self.cert=cert
 
-        self.from_spider=from_spider
-        assert isinstance(priority,int)
-        self.priority=priority
-        self.meta=meta or {}
-        self.appoint_name=appoint_name
-        self.callback=callback
-        self.project_path=project_path or []
-        self.replace_optional=replace_optional or {}
-        self.retry_count=retry_count
+        self.from_spider=kwargs.pop('from_spider', None)
+        self.priority=kwargs.pop('priority', 0)
+        assert isinstance(self.priority, int)
+        self.encoding=kwargs.pop('encoding','utf-8')
+        self.meta=kwargs.pop('meta', {})
+        self.callback=kwargs.pop('callback', 'parse')
+        self.replace_optional=kwargs.pop('replace_optional', {})
+        self.async_optional=kwargs.pop('async_optional', {})
+
+
 
     def to_json(self):
         return dump_json(self.to_dict())

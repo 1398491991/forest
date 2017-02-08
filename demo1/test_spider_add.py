@@ -14,7 +14,7 @@ d={'spider_instance':t.to_pickle(),
    'spider_max_url_length':0,
    'spider_min_url_length':0,
    'spider_retry_count':3,
-   'spider_project_path':['/mnt/hgfs/project/forest/demo']}
+   'spider_project_path':['/mnt/hgfs/project/forest/demo1']}
 
 a=AddSpider(d)
 a.add()

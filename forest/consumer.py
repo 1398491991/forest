@@ -15,8 +15,8 @@ BASE_REQUEST_PARAMS=['method','url','headers','files',
     'verify', 'stream', 'cert',
 ]
 
-EXTEND_REQUEST_PARAMS=['from_spider','callback','project_path','replace_optional',
-                 'priority','appoint_name','meta',]
+EXTEND_REQUEST_PARAMS=['from_spider','encoding','callback','replace_optional',
+                 'priority','async_optional','meta',]
 
 
 app=Celery(__name__,broker='redis://10.0.0.12:6379/0')
