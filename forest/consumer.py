@@ -90,11 +90,9 @@ consumerRequest = ConsumerRequest()
 @app.task
 def task_route(obj):
     """分发任务"""
-    print obj
-    return obj
-    # if isinstance(obj,Request):
-    #     return consumerRequest.process(obj)
+    if isinstance(obj,Request):
+        return consumerRequest.process(obj)
 
-    # if isinstance(obj,Item):
-    #     return consumerItem.process(obj)
+    if isinstance(obj,Item):
+        return consumerItem.process(obj)
 
