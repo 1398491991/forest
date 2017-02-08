@@ -1,7 +1,7 @@
 #coding=utf-8
 
 
-from forest.spider.info import GetSpiderInfo,SetSpiderInfo,RemoveSpiderInfo
+from forest.services.info import GetSpiderInfo,SetSpiderInfo,RemoveSpiderInfo
 
 getSpiderInfo=GetSpiderInfo(transaction=True)
 getSpiderInfo.rd_server.set('test_info','test')

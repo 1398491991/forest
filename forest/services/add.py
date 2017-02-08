@@ -1,10 +1,8 @@
-# coding=utf-8
-"""
-添加 spider 各项指标的方法集合
-"""
-from ..utils.serializable import load_json,load_pickle
-# from info import SpiderInfo
-from info import SetSpiderInfo
+#coding=utf-8
+from forest.http.request import Request
+from forest.utils.serializable import load_json,load_pickle
+from forest.async import async
+from forest.services.info import SetSpiderInfo
 import sys
 
 
@@ -43,8 +41,8 @@ class AddSpider(object):
         return self.d.get('spider_min_url_length')
 
     @property
-    def spider_retry_count(self):
-        return self.d.get('spider_retry_count')
+    def spider_request_retry_count(self):
+        return self.d.get('spider_request_retry_count')
 
     @property
     def spider_request_headers(self):
@@ -58,6 +56,13 @@ class AddSpider(object):
     def spider_request_user_agent(self):
         return self.d.get('spider_request_user_agent')
 
+    @property
+    def spider_request_cookies_status(self):
+        return self.d.get('spider_request_cookies_status','allow')
+
+    @property
+    def spider_request_cookies(self):
+        return self.d.get('spider_request_cookies')
 
     def add(self):
         self.setSpiderInfo.set_spider_name(self.spider_name)
@@ -68,7 +73,9 @@ class AddSpider(object):
         self.setSpiderInfo.set_spider_project_path(self.spider_project_path)
         self.setSpiderInfo.set_spider_max_url_length(self.spider_max_url_length)
         self.setSpiderInfo.set_spider_min_url_length(self.spider_min_url_length)
-        self.setSpiderInfo.set_spider_request_retry_count(self.spider_retry_count)
+        self.setSpiderInfo.set_spider_request_retry_count(self.spider_request_retry_count)
+        self.setSpiderInfo.set_spider_request_cookies_status(self.spider_request_cookies_status)
+        self.setSpiderInfo.set_spider_request_cookies(self.spider_request_cookies)
 
     def test_load(self):
         """测试是否能够正确反序列化"""
@@ -77,5 +84,30 @@ class AddSpider(object):
 
     def commit(self,raise_on_error=True):
         return self.setSpiderInfo.execute(raise_on_error)
+
+
+
+
+
+class AddRequest(object):
+
+    def __init__(self,request):
+        self.request= request
+
+    @classmethod
+    def from_json(cls,request_json):
+        return cls(Request(**load_json(request_json)))
+
+
+    @classmethod
+    def from_dict(cls,request_dict):
+        return cls(Request(**request_dict))
+
+    @classmethod
+    def from_pickle(cls,request_pickle):
+        return cls(Request(**load_pickle(request_pickle)))
+
+    def add(self):
+        return async.apply_async(self.request)
 
 

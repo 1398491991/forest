@@ -3,17 +3,17 @@ import signal
 import os
 from ..worker.job import JobItemProcess,JobRequestProcess
 from ..compat import frange
-import config
+import forest_config
 from ..rd import rd_conn
 from slave_info import slaveInfoManager
 
-SLAVE_NAMES_KEY=config.SLAVE_NAMES_KEY
-LOCAL_HOST_NAME=config.LOCAL_HOST_NAME
-APPOINT_QUEUE_ITEM_KEY=config.APPOINT_QUEUE_ITEM_KEY
-JOB_REQUEST_PID_KEY=config.JOB_REQUEST_PID_KEY
-JOB_ITEM_PID_KEY=config.JOB_ITEM_PID_KEY
-DEFAULT_PARALLEL_JOB_ITEM_COUNT=config.DEFAULT_PARALLEL_JOB_ITEM_COUNT
-DEFAULT_PARALLEL_JOB_REQUEST_COUNT=config.DEFAULT_PARALLEL_JOB_REQUEST_COUNT
+SLAVE_NAMES_KEY=forest_config.SLAVE_NAMES_KEY
+LOCAL_HOST_NAME=forest_config.LOCAL_HOST_NAME
+APPOINT_QUEUE_ITEM_KEY=forest_config.APPOINT_QUEUE_ITEM_KEY
+JOB_REQUEST_PID_KEY=forest_config.JOB_REQUEST_PID_KEY
+JOB_ITEM_PID_KEY=forest_config.JOB_ITEM_PID_KEY
+DEFAULT_PARALLEL_JOB_ITEM_COUNT=forest_config.DEFAULT_PARALLEL_JOB_ITEM_COUNT
+DEFAULT_PARALLEL_JOB_REQUEST_COUNT=forest_config.DEFAULT_PARALLEL_JOB_REQUEST_COUNT
 
 class SlaveStatusBaseManager(object):
     jobProcessClass=None

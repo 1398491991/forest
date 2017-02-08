@@ -1,11 +1,10 @@
 #coding=utf-8
-from functools import wraps
-from http.request import Request
-from http.response import Response
-from item import Item
-import consumer
 
-from spider.info import getSpiderInfo
+from forest.http.request import Request
+from forest.http.response import Response
+from forest.item import Item
+from forest.consumer import consumer
+from forest.services.info import getSpiderInfo
 
 
 class Async(object):
@@ -40,7 +39,7 @@ class Async(object):
             return
 
         async_optional=obj.async_optional
-        return consumer.consumer.process.apply_async(args=(consumer.consumer ,obj,), # ?
+        return consumer.process.apply_async(args=(consumer ,obj,), # ?
                                                   kwargs={},
                                                   **async_optional
                                                   )

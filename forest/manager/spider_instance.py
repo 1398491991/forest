@@ -1,7 +1,7 @@
 #coding=utf8
 from ..utils.serializable import load_pickle
 from ..rd import rd_conn
-from ..spider.info import getSpiderInfo
+from forest.services.info import getSpiderInfo
 import sys
 
 
@@ -39,7 +39,7 @@ class SpiderInstanceManager(object):
             return spider_instance
 
         except ImportError:
-            raise SpiderImportError,spider_name
+            raise SpiderImportError(spider_name)
 
 
 spiderInstanceManager=SpiderInstanceManager()

@@ -1,11 +1,11 @@
 #coding=utf8
 
 from celery import Celery
-from http.request import Request
-from http.response import Response
-from utils.select import Selector
-from item import Item
-from manager.spider_instance import spiderInstanceManager
+from forest.http.request import Request
+from forest.http.response import Response
+from forest.utils.select import Selector
+from forest.item import Item
+from forest.manager.spider_instance import spiderInstanceManager
 import requests
 
 BASE_REQUEST_PARAMS=['method','url','headers','files',
@@ -71,6 +71,7 @@ class Consumer(object):
         # 回调请求
         # assert isinstance(work_request,WorkRequest)
         spider_instance=self.get_spider_instance(obj)
+        print 213414145
         return getattr(spider_instance,obj.callback)(obj)
 
 

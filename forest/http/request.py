@@ -1,6 +1,6 @@
 #coding=utf8
 import requests
-from ..utils.serializable import dump_json
+from forest.utils.serializable import dump_json
 
 class Request(requests.Request):
     def __init__(self,url,method='GET', headers=None, files=None,

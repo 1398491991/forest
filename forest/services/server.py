@@ -1,8 +1,8 @@
 from flask import Flask
 from flask import request
-from ..worker.scheduler import enqueue_scheduler
-from ..http.request import Request
-from ..utils.serializable import load_json
+from forest.http.request import Request
+from forest.utils.serializable import load_json
+from forest.services.add import AddRequest
 
 app =Flask(__name__)
 
@@ -13,8 +13,9 @@ def add_request():
     if not j:
         return {"type error"}
     try:
-        enqueue_scheduler.scheduler(Request(**load_json(j)))
+        addRequest=AddRequest.from_json(j)
+        addRequest.add()
         return {"succeed"}
     except:
-        return {"init error"}
+        return {"add error"}
 

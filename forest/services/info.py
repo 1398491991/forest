@@ -1,26 +1,29 @@
 # coding=utf-8
-from ..rd import rd_conn
-import config
+from forest.rd import rd_conn
+import forest_config
+import six
 
 
-SPIDER_NAME_KEY=config.SPIDER_NAME_KEY
-SPIDER_INSTANCE_KEY=config.SPIDER_INSTANCE_KEY
-SPIDER_PROJECT_PATH_KEY=config.SPIDER_PROJECT_PATH_KEY
-SPIDER_URL_MAX_LENGTH_KEY=config.SPIDER_URL_MAX_LENGTH_KEY
-SPIDER_URL_MIN_LENGTH_KEY=config.SPIDER_URL_MIN_LENGTH_KEY
-SPIDER_RETRY_COUNT_KEY=config.SPIDER_RETRY_COUNT_KEY
-SPIDER_REQUEST_TIMEOUT_KEY=config.SPIDER_REQUEST_TIMEOUT_KEY
-SPIDER_REQUEST_USER_AGENT_KEY=config.SPIDER_REQUEST_USER_AGENT_KEY
 
+SPIDER_NAME_KEY=forest_config.SPIDER_NAME_KEY
+SPIDER_INSTANCE_KEY=forest_config.SPIDER_INSTANCE_KEY
+SPIDER_PROJECT_PATH_KEY=forest_config.SPIDER_PROJECT_PATH_KEY
+SPIDER_URL_MAX_LENGTH_KEY=forest_config.SPIDER_URL_MAX_LENGTH_KEY
+SPIDER_URL_MIN_LENGTH_KEY=forest_config.SPIDER_URL_MIN_LENGTH_KEY
+SPIDER_RETRY_COUNT_KEY=forest_config.SPIDER_RETRY_COUNT_KEY
+SPIDER_REQUEST_TIMEOUT_KEY=forest_config.SPIDER_REQUEST_TIMEOUT_KEY
+SPIDER_REQUEST_USER_AGENT_KEY=forest_config.SPIDER_REQUEST_USER_AGENT_KEY
+SPIDER_COOKIES_KEY=forest_config.SPIDER_COOKIES_KEY
+SPIDER_COOKIES_STATUS_KEY=forest_config.SPIDER_COOKIES_STATUS_KEY
 
-DEFAULT_SPIDER_URL_MAX_LENGTH=config.DEFAULT_SPIDER_URL_MAX_LENGTH # 0 表示没有限制
-DEFAULT_SPIDER_URL_MIN_LENGTH=config.DEFAULT_SPIDER_URL_MIN_LENGTH # 0 表示没有限制
-DEFAULT_SPIDER_RETRY_COUNT=config.DEFAULT_SPIDER_RETRY_COUNT
-DEFAULT_SPIDER_REQUEST_TIMEOUT=config.DEFAULT_SPIDER_REQUEST_TIMEOUT
-DEFAULT_SPIDER_REQUEST_USER_AGENT=config.DEFAULT_SPIDER_REQUEST_USER_AGENT
+DEFAULT_SPIDER_URL_MAX_LENGTH=forest_config.DEFAULT_SPIDER_URL_MAX_LENGTH # 0 表示没有限制
+DEFAULT_SPIDER_URL_MIN_LENGTH=forest_config.DEFAULT_SPIDER_URL_MIN_LENGTH # 0 表示没有限制
+DEFAULT_SPIDER_RETRY_COUNT=forest_config.DEFAULT_SPIDER_RETRY_COUNT
+DEFAULT_SPIDER_REQUEST_TIMEOUT=forest_config.DEFAULT_SPIDER_REQUEST_TIMEOUT
+DEFAULT_SPIDER_REQUEST_USER_AGENT=forest_config.DEFAULT_SPIDER_REQUEST_USER_AGENT
 
-SPIDER_REQUEST_HEADERS_KEY=config.SPIDER_REQUEST_HEADERS_KEY  # HSET
-DEFAULT_SPIDER_REQUEST_HEADERS =config.DEFAULT_SPIDER_REQUEST_HEADERS
+SPIDER_REQUEST_HEADERS_KEY=forest_config.SPIDER_REQUEST_HEADERS_KEY  # HSET
+DEFAULT_SPIDER_REQUEST_HEADERS =forest_config.DEFAULT_SPIDER_REQUEST_HEADERS
 
 
 class KeyExistError(Exception):
@@ -110,7 +113,7 @@ class SetSpiderInfo(BaseSpiderInfo):
             raise KeyExistError,key
 
     def set_spider_instance(self,spider, ignore_exist=False):
-        assert isinstance(spider,basestring) # pickle
+        assert isinstance(spider,six.string_types) # pickle
         key = SPIDER_INSTANCE_KEY%self.key_format
         self.exist_key(key,ignore_exist)
         return self.rd_server.set(key, spider)
@@ -158,19 +161,33 @@ class SetSpiderInfo(BaseSpiderInfo):
     def set_spider_request_timeout(self,timeout, ignore_exist=False):
         timeout=timeout or DEFAULT_SPIDER_REQUEST_TIMEOUT
         assert isinstance(timeout,(int,float)) and timeout>0
-        return self.rd_server.set(
-                         SPIDER_REQUEST_TIMEOUT_KEY % self.key_format,
-                         timeout,)
+        key= SPIDER_REQUEST_TIMEOUT_KEY % self.key_format
+        self.exist_key(key,ignore_exist)
+        return self.rd_server.set(key,timeout)
 
 
     def set_spider_request_user_agent(self,user_agent, ignore_exist=False):
-        user_agent=user_agent or [DEFAULT_SPIDER_REQUEST_USER_AGENT,]
+        user_agent=user_agent or (DEFAULT_SPIDER_REQUEST_USER_AGENT,)
         assert isinstance(user_agent,(list,tuple,set))
-        return self.rd_server.sadd(
-                         SPIDER_REQUEST_USER_AGENT_KEY % self.key_format,
-                         user_agent,)
+        key=SPIDER_REQUEST_USER_AGENT_KEY % self.key_format
+        self.exist_key(key,ignore_exist)
+        return self.rd_server.sadd(key,*user_agent)
 
 
+    def set_spider_request_cookies_status(self,status, ignore_exist=False):
+        assert status in ('allow','forbid')
+        key= SPIDER_COOKIES_STATUS_KEY % self.key_format
+        self.exist_key(key,ignore_exist)
+        return self.rd_server.set(key,status)
+
+
+    def set_spider_request_cookies(self,cookies, ignore_exist=False):
+        if not cookies:
+            return
+        assert isinstance(cookies,six.string_types) # cookies jar pickle 、 str
+        key= SPIDER_COOKIES_KEY % self.key_format
+        self.exist_key(key,ignore_exist)
+        return self.rd_server.set(key,cookies)
 
 
 class GetSpiderInfo(BaseSpiderInfo):
@@ -226,6 +243,13 @@ class GetSpiderInfo(BaseSpiderInfo):
     def get_all_spider_name(self):
         return self.rd_server.smembers(SPIDER_NAME_KEY)
 
+    def get_spider_request_cookies_status(self,spider_name=None):
+        """是否启用禁止 cookies  allow True else False"""
+        return self.rd_server.get(SPIDER_COOKIES_STATUS_KEY%{'spider_name':spider_name or self.spider_name})=='allow'
+
+    def get_spider_request_cookies(self,spider_name=None):
+        return self.rd_server.get(SPIDER_COOKIES_KEY%{'spider_name':spider_name or self.spider_name})
+
 
 class RemoveSpiderInfo(BaseSpiderInfo):
 
@@ -276,6 +300,13 @@ class RemoveSpiderInfo(BaseSpiderInfo):
     def rm_spider_request_user_agent(self,spider_name=None):
 
         return self.delete_key(SPIDER_REQUEST_USER_AGENT_KEY%{'spider_name':spider_name or self.spider_name})
+
+    def rm_spider_request_cookies_status(self,spider_name=None):
+
+        return self.delete_key(SPIDER_COOKIES_STATUS_KEY%{'spider_name':spider_name or self.spider_name})
+
+    def rm_spider_request_cookies(self,spider_name=None):
+        return self.delete_key(SPIDER_COOKIES_KEY%{'spider_name':spider_name or self.spider_name})
 
 
 # setSpiderInfo=SetSpiderInfo(transaction=True)

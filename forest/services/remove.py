@@ -1,11 +1,12 @@
 # coding=utf-8
-"""
-移除 spider 各项指标的方法集合
-"""
-from info import RemoveSpiderInfo
+
+from forest.services.info import RemoveSpiderInfo
 
 
 class RemoveSpider(object):
+    """
+    移除 spider 各项指标的方法集合
+    """
     removeSpiderInfo=RemoveSpiderInfo(transaction=True)
 
     def __init__(self,spider_name):
@@ -22,6 +23,9 @@ class RemoveSpider(object):
         self.removeSpiderInfo.rm_spider_request_headers()
         self.removeSpiderInfo.rm_spider_request_timeout()
         self.removeSpiderInfo.rm_spider_request_user_agent()
+        self.removeSpiderInfo.rm_spider_request_cookies_status()
+        self.removeSpiderInfo.rm_spider_request_cookies()
+
 
 
     def commit(self, raise_on_error=True):

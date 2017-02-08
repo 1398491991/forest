@@ -1,5 +1,5 @@
 #coding=utf-8
-from forest.spider.info import getSpiderInfo
+from forest.services.info import getSpiderInfo
 
 class RetryMiddleware(object):
 

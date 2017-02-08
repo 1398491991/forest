@@ -1,10 +1,10 @@
 #coding=utf-8
 from ..manager.slave_info import slaveInfoManager # 本地的
 from ..command import Commander
-import config
+import forest_config
 import logging
 
-DEFAULT_SSH_LOG_CONFIG=config.DEFAULT_SSH_LOG_CONFIG
+DEFAULT_SSH_LOG_CONFIG=forest_config.DEFAULT_SSH_LOG_CONFIG
 
 class CommandManager(object):
 

@@ -12,6 +12,8 @@ PUBLIC_PRIORITY_QUEUE_REQUEST_KEY='forest:public_priority_queue:request'
 PUBLIC_QUEUE_REQUEST_KEY='forest:public_queue:request'
 
 SPIDER_INSTANCE_KEY='forest:spider_instance:%(spider_name)s'
+SPIDER_COOKIES_KEY='forest:spider_cookies:%(spider_name)s'
+SPIDER_COOKIES_STATUS_KEY='forest:spider_cookies_status:%(spider_name)s'
 SPIDER_NAME_KEY='forest:spider_name' # set
 SPIDER_PROJECT_PATH_KEY='forest:%(spider_name)s:spider_project_path' # set
 SPIDER_URL_MAX_LENGTH_KEY='forest:%(spider_name)s:url_max_length' # map

@@ -1,11 +1,11 @@
 
-from forest.spider import Spider
+from forest.spider.plain import PlainSpider
 from forest.async import async
 from forest.http.request import Request
 from forest.utils.misc import get_host_name
 
 host_name=get_host_name()
-class testSpider(Spider):
+class testSpider(PlainSpider):
     name='test'
 
     @async

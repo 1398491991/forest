@@ -2,10 +2,10 @@
 import paramiko
 from paramiko.util import log_to_file
 import logging
-import config
+import forest_config
 
 
-DEFAULT_SSH_LOG_CONFIG=config.DEFAULT_SSH_LOG_CONFIG
+DEFAULT_SSH_LOG_CONFIG=forest_config.DEFAULT_SSH_LOG_CONFIG
 
 class Commander(object):
     def __init__(self,client_config,log_config):

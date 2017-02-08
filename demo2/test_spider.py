@@ -1,8 +1,8 @@
 
-from forest.spider.plain import RulesSpider
+from forest.spider.rule import RulesSpider
 from forest.async import async
 from forest.http.request import Request
-from forest.spider.plain import Rule
+from forest.spider.rule import Rule
 from forest.lxmlhtml import LxmlLinkExtractor
 
 
